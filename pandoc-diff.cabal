@@ -32,6 +32,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , containers >=0.7
     , pandoc >=3.5
     , pandoc-types >=1.23.1
     , tree-diff >=0.3.4

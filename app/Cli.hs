@@ -1,6 +1,6 @@
 module Cli (Command (..), readInputCommand, Format (..)) where
 
-import Options.Applicative (Parser, ReadM, argument, eitherReader, execParser, fullDesc, help, helper, info, long, metavar, option, progDesc, str, (<**>))
+import Options.Applicative (Parser, ReadM, argument, command, eitherReader, execParser, fullDesc, help, helper, info, long, metavar, option, progDesc, str, subparser, (<**>))
 
 data Command
   = Diff Format String String
@@ -20,7 +20,7 @@ readFormat = eitherReader $ \arg ->
     _ -> Left $ "Unknown format: " ++ arg
 
 commandParser :: Parser Command
-commandParser = Diff <$> formatParser <*> argument str (metavar "DOC_1") <*> argument str (metavar "DOC_2")
+commandParser = subparser (command "diff" (info (Diff <$> formatParser <*> argument str (metavar "DOC_1") <*> argument str (metavar "DOC_2")) (progDesc "Diff two pandoc documents")))
 
 readInputCommand :: IO Command
-readInputCommand = execParser (info (commandParser <**> helper) (fullDesc <> progDesc "Diff two pandoc documents"))
+readInputCommand = execParser (info (commandParser <**> helper) fullDesc)
