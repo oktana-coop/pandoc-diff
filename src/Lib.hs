@@ -5,18 +5,18 @@ where
 
 import Data.Tree (Tree (Node), foldTree, unfoldForest)
 import Data.TreeDiff (Edit)
-import Data.TreeDiff.Tree (EditTree)
+import Data.TreeDiff.Tree (EditTree, treeDiff)
 import Text.Pandoc.Definition (Block (..), Inline (..), Pandoc (..))
 
 -- data PandocSeed = PandocBlockSeed Block | PandocInlineSeed Inline
 
-data BlockNode = PandocBlock Block | ListItem [Block] deriving (Show)
+data BlockNode = PandocBlock Block | ListItem [Block] deriving (Show, Eq)
 
-data InlineNode = PandocInline Inline deriving (Show)
+data InlineNode = PandocInline Inline deriving (Show, Eq)
 
-data TreeNode = BlockNode BlockNode | InlineNode InlineNode deriving (Show)
+data TreeNode = BlockNode BlockNode | InlineNode InlineNode deriving (Show, Eq)
 
-data DocNode = Root | TreeNode TreeNode deriving (Show)
+data DocNode = Root | TreeNode TreeNode deriving (Show, Eq)
 
 toTree :: Pandoc -> Tree DocNode
 toTree (Pandoc _ blocks) = Node Root $ unfoldForest treeNodeUnfolder $ map (BlockNode . PandocBlock) blocks
@@ -52,4 +52,4 @@ inlineTreeNodeUnfolder (PandocInline inline) = case inline of
   _ -> undefined
 
 diff :: Pandoc -> Pandoc -> Edit (EditTree DocNode)
-diff = undefined
+diff pandoc1 pandoc2 = treeDiff (toTree pandoc1) (toTree pandoc2)
