@@ -9,8 +9,6 @@ import Data.TreeDiff.Tree (EditTree, treeDiff)
 import Debug.Trace
 import Text.Pandoc.Definition (Block (..), Inline (..), Pandoc (..))
 
--- data PandocSeed = PandocBlockSeed Block | PandocInlineSeed Inline
-
 data BlockNode = PandocBlock Block | ListItem [Block] deriving (Show, Eq)
 
 data InlineNode = PandocInline Inline deriving (Show, Eq)
