@@ -41,7 +41,7 @@ library:
     - tree-diff >= 0.3.4
 
 executables:
-  pandoc-diff-exe:
+  pandoc-diff:
     main: Main.hs
     source-dirs: app
     ghc-options:

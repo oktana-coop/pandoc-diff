@@ -4,7 +4,7 @@ import Cli (Command (..), Format (..), readInputCommand)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Lib (diff)
-import Text.Pandoc (Pandoc, PandocIO, ReaderOptions, def, handleError, readHtml, readMarkdown, readNative)
+import Text.Pandoc (Pandoc, PandocIO, ReaderOptions, def, handleError, readHtml, readJSON, readMarkdown, readNative)
 import Text.Pandoc.Class (runIO)
 
 readFrom :: Format -> ReaderOptions -> T.Text -> PandocIO Pandoc
@@ -12,6 +12,7 @@ readFrom format = case format of
   Cli.Pandoc -> readNative
   Cli.Markdown -> readMarkdown
   Cli.Html -> readHtml
+  Cli.Json -> readJSON
 
 main :: IO ()
 main = do
