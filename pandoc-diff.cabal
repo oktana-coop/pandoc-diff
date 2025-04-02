@@ -40,6 +40,7 @@ library
 executable pandoc-diff-exe
   main-is: Main.hs
   other-modules:
+      Cli
       Paths_pandoc_diff
   hs-source-dirs:
       app
@@ -47,7 +48,9 @@ executable pandoc-diff-exe
   build-depends:
       base >=4.7 && <5
     , optparse-applicative >=0.18.1.0
+    , pandoc >=3.5
     , pandoc-diff
+    , text >=2.1.1
   default-language: Haskell2010
 
 test-suite pandoc-diff-test

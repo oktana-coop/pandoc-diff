@@ -49,7 +49,9 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - optparse-applicative >= 0.18.1.0
+      - pandoc >= 3.5
       - pandoc-diff
+      - text >= 2.1.1
 
 tests:
   pandoc-diff-test:
