@@ -3,9 +3,10 @@ module Lib
   )
 where
 
-import Data.Tree (Tree (Node), foldTree, unfoldForest)
+import Data.Tree (Tree (Node), drawTree, foldTree, unfoldForest)
 import Data.TreeDiff (Edit)
 import Data.TreeDiff.Tree (EditTree, treeDiff)
+import Debug.Trace
 import Text.Pandoc.Definition (Block (..), Inline (..), Pandoc (..))
 
 -- data PandocSeed = PandocBlockSeed Block | PandocInlineSeed Inline
@@ -17,6 +18,9 @@ data InlineNode = PandocInline Inline deriving (Show, Eq)
 data TreeNode = BlockNode BlockNode | InlineNode InlineNode deriving (Show, Eq)
 
 data DocNode = Root | TreeNode TreeNode deriving (Show, Eq)
+
+traceTree :: Tree DocNode -> Tree DocNode
+traceTree tree = Debug.Trace.trace (drawTree $ fmap show tree) tree
 
 toTree :: Pandoc -> Tree DocNode
 toTree (Pandoc _ blocks) = Node Root $ unfoldForest treeNodeUnfolder $ map (BlockNode . PandocBlock) blocks
@@ -52,4 +56,4 @@ inlineTreeNodeUnfolder (PandocInline inline) = case inline of
   _ -> undefined
 
 diff :: Pandoc -> Pandoc -> Edit (EditTree DocNode)
-diff pandoc1 pandoc2 = treeDiff (toTree pandoc1) (toTree pandoc2)
+diff pandoc1 pandoc2 = treeDiff (traceTree $ toTree pandoc1) (traceTree $ toTree pandoc2)
