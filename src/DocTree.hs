@@ -1,4 +1,4 @@
-module DocTree (BlockNode (..), InlineNode (..), DocNode (..), toTree, traceTree) where
+module DocTree (BlockNode (..), InlineNode (..), DocNode (..), toPandoc, toTree, traceTree) where
 
 import qualified Data.Text as T
 import Data.Tree (Tree (Node), drawTree, foldTree, unfoldForest)
@@ -82,3 +82,6 @@ addMark mark inlines = fmap (TextSpan T.empty [mark] <>) (inlinesToTextSpans inl
 
 inlineTreeNodeUnfolder :: InlineNode -> (DocNode, [TreeNode])
 inlineTreeNodeUnfolder inlineNode = (TreeNode $ InlineNode inlineNode, [])
+
+toPandoc :: Tree DocNode -> Pandoc.Pandoc
+toPandoc = undefined
