@@ -1,12 +1,7 @@
-module Lib
-  ( diff,
-  )
-where
+module DocTree (BlockNode (..), InlineNode (..), DocNode (..), toTree, traceTree) where
 
 import qualified Data.Text as T
 import Data.Tree (Tree (Node), drawTree, foldTree, unfoldForest)
-import Data.TreeDiff (Edit)
-import Data.TreeDiff.Tree (EditTree, treeDiff)
 import Debug.Trace
 import Text.Pandoc.Definition as Pandoc (Attr, Block (..), Inline (..), Pandoc (..), Target)
 
@@ -77,7 +72,7 @@ inlineToTextSpan inline = case inline of
   Pandoc.Space -> [TextSpan (T.pack " ") []]
   Pandoc.Strong inlines -> addMark StrongMark inlines
   Pandoc.Emph inlines -> addMark EmphMark inlines
-  Pandoc.Link attrs inlines target -> addMark (LinkMark $ Lib.Link attrs target) inlines
+  Pandoc.Link attrs inlines target -> addMark (LinkMark $ DocTree.Link attrs target) inlines
   -- TODO: Handle other inline elements
   _ -> []
 
@@ -87,6 +82,3 @@ addMark mark inlines = fmap (TextSpan T.empty [mark] <>) (inlinesToTextSpans inl
 
 inlineTreeNodeUnfolder :: InlineNode -> (DocNode, [TreeNode])
 inlineTreeNodeUnfolder inlineNode = (TreeNode $ InlineNode inlineNode, [])
-
-diff :: Pandoc -> Pandoc -> Edit (EditTree DocNode)
-diff pandoc1 pandoc2 = treeDiff (traceTree $ toTree pandoc1) (traceTree $ toTree pandoc2)

@@ -24,7 +24,8 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Diff
+      DocTree
   other-modules:
       Paths_pandoc_diff
   hs-source-dirs:
