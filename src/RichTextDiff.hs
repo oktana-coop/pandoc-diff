@@ -10,6 +10,7 @@ import Data.Tree (Tree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
 import DocTree (BlockNode (..), DocNode (..), InlineNode (..), Mark (..), TextSpan (..), TreeNode (..), toTree, traceTree)
+import Foreign (toBool)
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
 data FormattedCharacter = FormattedCharacter {char :: Char, charMarks :: [Mark]} deriving (Show, Eq)
@@ -19,6 +20,21 @@ data MarkDiff = MarkDiff [Mark] [Mark]
 data HeadingLevelDiff = HeadingLevelDiff Int Int
 
 data RichTextDiffOp a = Insert a | Delete a | Copy a | UpdateMarks MarkDiff a | UpdateHeadingLevel HeadingLevelDiff a
+
+data RichTextDiffOpType
+  = InsertType
+  | DeleteType
+  | CopyType
+  | UpdateMarksType
+  | UpdateHeadingLevelType
+  deriving (Show, Eq)
+
+getDiffOpType :: RichTextDiffOp a -> RichTextDiffOpType
+getDiffOpType (Insert _) = InsertType
+getDiffOpType (Delete _) = DeleteType
+getDiffOpType (Copy _) = CopyType
+getDiffOpType (UpdateMarks _ _) = UpdateMarksType
+getDiffOpType (UpdateHeadingLevel _ _) = UpdateHeadingLevelType
 
 unpackDiffOpValue :: RichTextDiffOp a -> a
 unpackDiffOpValue (Insert a) = a
@@ -97,12 +113,18 @@ groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
         textSpanFromFormattedChar :: FormattedCharacter -> TextSpan
         textSpanFromFormattedChar (FormattedCharacter c cMarks) = TextSpan (T.pack [c]) cMarks
     -- pattern-match on: the current element (x), the one to its right (firstOfRest) and the rest of the fold
-    groupOrAppendAdjacent (FormattedCharacter char charMarks) (firstOfRest : rest) =
-      if charMarks == marks firstOfRest
+    groupOrAppendAdjacent formattedCharWithDiffOp (firstOfRest : rest) =
+      if (diffOpSame formattedCharWithDiffOp firstOfRest && characterAndTextSpanMarksSame formattedCharWithDiffOp firstOfRest)
         -- if the element's marks are the same with the one to its right, we merge them and then add them to the rest of the fold.
         then (appendCharToTextSpan firstOfRest char) : rest
         -- if they are not the same we end up with an extra text span in the list for the current element (we prepend it to the existing list for the fold.)
         else TextSpan (T.pack [char]) charMarks : firstOfRest : rest
+
+    diffOpSame :: RichTextDiffOp a -> RichTextDiffOp b -> Bool
+    diffOpSame wrappedWithDiff1 wrappedWithDiff2 = getDiffOpType wrappedWithDiff1 == getDiffOpType wrappedWithDiff2
+
+    characterAndTextSpanMarksSame :: RichTextDiffOp FormattedCharacter -> RichTextDiffOp TextSpan -> Bool
+    characterAndTextSpanMarksSame formattedCharWithDiffOp textSpan = (charMarks . unpackDiffOpValue) formattedCharWithDiffOp == (marks $ unpackDiffOpValue textSpan)
 
     appendCharToTextSpan :: TextSpan -> Char -> TextSpan
     appendCharToTextSpan textSpan char = TextSpan (appendChar (value textSpan) char) (marks textSpan)
@@ -113,6 +135,7 @@ groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
 listDiffToRichTextDiff :: ListDiff.Diff FormattedCharacter -> RichTextDiffOp FormattedCharacter
 listDiffToRichTextDiff = undefined
 
+-- TODO: Use op type and make it parametric
 replaceWithInsOp :: Edit a -> Edit a
 replaceWithInsOp (Cpy node) = Ins node
 replaceWithInsOp (Ins node) = Ins node
