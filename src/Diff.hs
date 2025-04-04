@@ -34,11 +34,10 @@ annotatedTreeNodeUnfolder (Del (EditNode (Root) subForestEditScripts)) = (Root, 
 annotatedTreeNodeUnfolder (Swp (EditNode (Root) subForest1EditScripts) (EditNode (Root) subForest2EditScripts)) = (Root, handleSwappedBlockSubForests subForest1EditScripts subForest2EditScripts)
 annotatedTreeNodeUnfolder (Ins (EditNode (TreeNode (BlockNode blockNode)) subForestEditScripts)) = (TreeNode $ BlockNode blockNode, map replaceWithInsOp subForestEditScripts)
 annotatedTreeNodeUnfolder (Del (EditNode (TreeNode (BlockNode blockNode)) subForestEditScripts)) = (TreeNode $ BlockNode blockNode, map replaceWithDelOp subForestEditScripts)
-annotatedTreeNodeUnfolder (Swp (EditNode (TreeNode (BlockNode blockNode1)) subForest1EditScripts) (EditNode (TreeNode (BlockNode blockNode2)) subForest2EditScripts)) =
-  -- In this case of swapping blocks, we add a wrapper div container to the tree and create del+ins operations for the swapped blocks respectively.
-  (TreeNode $ BlockNode $ PandocBlock $ Pandoc.Div nullAttr [], [Del (EditNode (TreeNode (BlockNode blockNode1)) subForest1EditScripts), Ins (EditNode (TreeNode (BlockNode blockNode2)) subForest2EditScripts)])
-annotatedTreeNodeUnfolder (Ins (EditNode (TreeNode (InlineNode inlineNode)) subForestEditScripts)) = undefined
-annotatedTreeNodeUnfolder (Del (EditNode (TreeNode (InlineNode inlineNode)) subForestEditScripts)) = undefined
+-- In this case of swapping blocks, we add a wrapper div container to the tree and create del+ins operations for the swapped blocks respectively.
+annotatedTreeNodeUnfolder (Swp block1@(EditNode (TreeNode (BlockNode _)) _) block2@(EditNode (TreeNode (BlockNode _)) _)) = (TreeNode $ BlockNode $ PandocBlock $ Pandoc.Div nullAttr [], [Del block1, Ins block2])
+annotatedTreeNodeUnfolder (Ins (EditNode (TreeNode (InlineNode inlineNode)) subForestEditScripts)) = (TreeNode $ InlineNode inlineNode, map replaceWithInsOp subForestEditScripts)
+annotatedTreeNodeUnfolder (Del (EditNode (TreeNode (InlineNode inlineNode)) subForestEditScripts)) = (TreeNode $ InlineNode inlineNode, map replaceWithDelOp subForestEditScripts)
 annotatedTreeNodeUnfolder (Swp (EditNode (TreeNode (InlineNode inlineNode1)) subForest1EditScripts) (EditNode (TreeNode (BlockNode inlineNode2)) subForest2EditScripts)) = undefined
 -- TODO: Here we must return an error because we are in cases where the edit script is wrong (e.g. trying to replace the Root node with another block or inline node).
 annotatedTreeNodeUnfolder _ = undefined
