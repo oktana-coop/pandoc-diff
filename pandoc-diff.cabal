@@ -24,15 +24,16 @@ source-repository head
 
 library
   exposed-modules:
-      Diff
       DocTree
+      RichTextDiff
   other-modules:
       Paths_pandoc_diff
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      Diff >=1.0.2
+    , base >=4.7 && <5
     , containers >=0.7
     , pandoc >=3.5
     , pandoc-types >=1.23.1
