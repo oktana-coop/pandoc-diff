@@ -1,4 +1,4 @@
-module DocTree (BlockNode (..), InlineNode (..), DocNode (..), TreeNode (..), toPandoc, toTree, traceTree) where
+module DocTree (BlockNode (..), InlineNode (..), TextSpan (..), DocNode (..), TreeNode (..), Mark (..), toPandoc, toTree, traceTree) where
 
 import qualified Data.Text as T
 import Data.Tree (Tree (Node), drawTree, foldTree, unfoldForest)

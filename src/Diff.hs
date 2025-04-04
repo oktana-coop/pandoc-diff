@@ -7,8 +7,14 @@ where
 import Data.Tree (Tree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
-import DocTree (BlockNode (..), DocNode (..), InlineNode (..), TreeNode (..), toPandoc, toTree, traceTree)
+import DocTree (BlockNode (..), DocNode (..), InlineNode (..), Mark (..), TextSpan (..), TreeNode (..), toPandoc, toTree, traceTree)
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
+
+data MarkDiff = ChangeMarks [Mark] [Mark]
+
+data HeadingLevelDiff = ChangeLevel Int Int
+
+data RichTextDiffOp a = Insert a | Delete a | Copy a | MarkDiff MarkDiff | HeadingLevelDiff HeadingLevelDiff
 
 diff :: Pandoc.Pandoc -> Pandoc.Pandoc -> Pandoc.Pandoc
 diff pandoc1 pandoc2 = (toPandoc . unfoldAnnotatedTreeFromEditScript) editScript
