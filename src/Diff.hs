@@ -7,8 +7,8 @@ where
 import Data.Tree (Tree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
-import DocTree (DocNode (..), TreeNode (..), toPandoc, toTree, traceTree)
-import Text.Pandoc.Definition as Pandoc (Pandoc)
+import DocTree (BlockNode (..), DocNode (..), TreeNode (..), toPandoc, toTree, traceTree)
+import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
 diff :: Pandoc.Pandoc -> Pandoc.Pandoc -> Pandoc.Pandoc
 diff pandoc1 pandoc2 = (toPandoc . unfoldAnnotatedTreeFromEditScript) editScript
@@ -31,15 +31,20 @@ annotatedTreeNodeUnfolder :: Edit (EditTree DocNode) -> (DocNode, [Edit (EditTre
 annotatedTreeNodeUnfolder (Cpy (EditNode docNode subForestEditScripts)) = (docNode, subForestEditScripts)
 annotatedTreeNodeUnfolder (Ins (EditNode (Root) subForestEditScripts)) = (Root, map replaceWithInsOp subForestEditScripts)
 annotatedTreeNodeUnfolder (Del (EditNode (Root) subForestEditScripts)) = (Root, map replaceWithDelOp subForestEditScripts)
-annotatedTreeNodeUnfolder (Swp (EditNode (Root) subForest1EditScripts) (EditNode (Root) subForest2EditScripts)) = undefined
+annotatedTreeNodeUnfolder (Swp (EditNode (Root) subForest1EditScripts) (EditNode (Root) subForest2EditScripts)) = (Root, handleSwappedBlockSubForests subForest1EditScripts subForest2EditScripts)
 annotatedTreeNodeUnfolder (Ins (EditNode (TreeNode (BlockNode blockNode)) subForestEditScripts)) = (TreeNode $ BlockNode blockNode, map replaceWithInsOp subForestEditScripts)
 annotatedTreeNodeUnfolder (Del (EditNode (TreeNode (BlockNode blockNode)) subForestEditScripts)) = (TreeNode $ BlockNode blockNode, map replaceWithDelOp subForestEditScripts)
-annotatedTreeNodeUnfolder (Swp (EditNode (TreeNode (BlockNode blockNode1)) subForest1EditScripts) (EditNode (TreeNode (BlockNode blockNode2)) subForest2EditScripts)) = undefined
+annotatedTreeNodeUnfolder (Swp (EditNode (TreeNode (BlockNode blockNode1)) subForest1EditScripts) (EditNode (TreeNode (BlockNode blockNode2)) subForest2EditScripts)) =
+  -- In this case of swapping blocks, we add a wrapper div container to the tree and create del+ins operations for the swapped blocks respectively.
+  (TreeNode $ BlockNode $ PandocBlock $ Pandoc.Div nullAttr [], [Del (EditNode (TreeNode (BlockNode blockNode1)) subForest1EditScripts), Ins (EditNode (TreeNode (BlockNode blockNode2)) subForest2EditScripts)])
 annotatedTreeNodeUnfolder (Ins (EditNode (TreeNode (InlineNode inlineNode)) subForestEditScripts)) = undefined
 annotatedTreeNodeUnfolder (Del (EditNode (TreeNode (InlineNode inlineNode)) subForestEditScripts)) = undefined
 annotatedTreeNodeUnfolder (Swp (EditNode (TreeNode (InlineNode inlineNode1)) subForest1EditScripts) (EditNode (TreeNode (BlockNode inlineNode2)) subForest2EditScripts)) = undefined
 -- TODO: Here we must return an error because we are in cases where the edit script is wrong (e.g. trying to replace the Root node with another block or inline node).
 annotatedTreeNodeUnfolder _ = undefined
+
+handleSwappedBlockSubForests :: [Edit (EditTree DocNode)] -> [Edit (EditTree DocNode)] -> [Edit (EditTree DocNode)]
+handleSwappedBlockSubForests deletedSubForests insertedSubForests = (map replaceWithDelOp deletedSubForests) <> (map replaceWithInsOp insertedSubForests)
 
 replaceWithInsOp :: Edit a -> Edit a
 replaceWithInsOp (Cpy node) = Ins node
