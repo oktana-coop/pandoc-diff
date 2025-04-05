@@ -100,7 +100,7 @@ textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
 textSpanToFormattedText textSpan = map (\char -> FormattedCharacter char (marks textSpan)) $ T.unpack (value textSpan)
 
 buildAnnotatedInlineNodeFromDiff :: [ListDiff.Diff FormattedCharacter] -> RichTextDiffOp DocNode
-buildAnnotatedInlineNodeFromDiff listDiff = Copy $ TreeNode $ InlineNode $ InlineContent $ groupSameMarkChars $ map listDiffToRichTextDiff listDiff
+buildAnnotatedInlineNodeFromDiff listDiff = Copy $ TreeNode $ InlineNode $ InlineContent $ groupSameMarkAndDiffOpChars $ map listDiffToRichTextDiff listDiff
 
 groupSameMarkAndDiffOpChars :: [RichTextDiffOp FormattedCharacter] -> [RichTextDiffOp TextSpan]
 groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
@@ -109,16 +109,18 @@ groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
     groupOrAppendAdjacent :: RichTextDiffOp FormattedCharacter -> [RichTextDiffOp TextSpan] -> [RichTextDiffOp TextSpan]
     -- Keep the diff op the same (just fmap over it) and create a text span with just this character
     groupOrAppendAdjacent formattedCharWithDiffOp [] = [fmap textSpanFromFormattedChar formattedCharWithDiffOp]
-      where
-        textSpanFromFormattedChar :: FormattedCharacter -> TextSpan
-        textSpanFromFormattedChar (FormattedCharacter c cMarks) = TextSpan (T.pack [c]) cMarks
     -- pattern-match on: the current element (x), the one to its right (firstOfRest) and the rest of the fold
     groupOrAppendAdjacent formattedCharWithDiffOp (firstOfRest : rest) =
       if (diffOpSame formattedCharWithDiffOp firstOfRest && characterAndTextSpanMarksSame formattedCharWithDiffOp firstOfRest)
         -- if the element's marks are the same with the one to its right, we merge them and then add them to the rest of the fold.
-        then (appendCharToTextSpan firstOfRest char) : rest
+        then (fmap (appendCharToTextSpan c) firstOfRest) : rest
         -- if they are not the same we end up with an extra text span in the list for the current element (we prepend it to the existing list for the fold.)
-        else TextSpan (T.pack [char]) charMarks : firstOfRest : rest
+        else fmap textSpanFromFormattedChar formattedCharWithDiffOp : firstOfRest : rest
+      where
+        c = (char . unpackDiffOpValue) formattedCharWithDiffOp
+
+    textSpanFromFormattedChar :: FormattedCharacter -> TextSpan
+    textSpanFromFormattedChar (FormattedCharacter c cMarks) = TextSpan (T.pack [c]) cMarks
 
     diffOpSame :: RichTextDiffOp a -> RichTextDiffOp b -> Bool
     diffOpSame wrappedWithDiff1 wrappedWithDiff2 = getDiffOpType wrappedWithDiff1 == getDiffOpType wrappedWithDiff2
@@ -126,11 +128,11 @@ groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
     characterAndTextSpanMarksSame :: RichTextDiffOp FormattedCharacter -> RichTextDiffOp TextSpan -> Bool
     characterAndTextSpanMarksSame formattedCharWithDiffOp textSpan = (charMarks . unpackDiffOpValue) formattedCharWithDiffOp == (marks $ unpackDiffOpValue textSpan)
 
-    appendCharToTextSpan :: TextSpan -> Char -> TextSpan
-    appendCharToTextSpan textSpan char = TextSpan (appendChar (value textSpan) char) (marks textSpan)
+    appendCharToTextSpan :: Char -> TextSpan -> TextSpan
+    appendCharToTextSpan c textSpan = TextSpan (appendChar c (value textSpan)) (marks textSpan)
 
-    appendChar :: T.Text -> Char -> T.Text
-    appendChar txt ch = txt `T.snoc` ch
+    appendChar :: Char -> T.Text -> T.Text
+    appendChar c txt = txt `T.snoc` c
 
 listDiffToRichTextDiff :: ListDiff.Diff FormattedCharacter -> RichTextDiffOp FormattedCharacter
 listDiffToRichTextDiff = undefined
