@@ -10,7 +10,6 @@ import Data.Tree (Tree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
 import DocTree (BlockNode (..), DocNode (..), InlineNode (..), Mark (..), TextSpan (..), TreeNode (..), toTree, traceTree)
-import Foreign (toBool)
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
 data FormattedCharacter = FormattedCharacter {char :: Char, charMarks :: [Mark]} deriving (Show, Eq)
@@ -97,7 +96,7 @@ toFormattedText :: InlineNode -> [FormattedCharacter]
 toFormattedText (InlineContent textSpans) = concatMap textSpanToFormattedText textSpans
 
 textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
-textSpanToFormattedText textSpan = map (\char -> FormattedCharacter char (marks textSpan)) $ T.unpack (value textSpan)
+textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
 
 buildAnnotatedInlineNodeFromDiff :: [ListDiff.Diff FormattedCharacter] -> RichTextDiffOp DocNode
 buildAnnotatedInlineNodeFromDiff listDiff = Copy $ TreeNode $ InlineNode $ InlineContent $ groupSameMarkAndDiffOpChars $ map listDiffToRichTextDiff listDiff
