@@ -26,6 +26,7 @@ library
   exposed-modules:
       RichTextDiff
   other-modules:
+      DocTree.Common
       DocTree.GroupedInlines
       DocTree.LeafTextSpans
   hs-source-dirs:

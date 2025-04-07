@@ -1,23 +1,10 @@
-module DocTree.GroupedInlines (BlockNode (..), InlineNode (..), TextSpan (..), DocNode (..), TreeNode (..), Mark (..), toTree, traceTree) where
+module DocTree.GroupedInlines (BlockNode (..), InlineNode (..), DocNode (..), TreeNode (..), toTree, traceTree) where
 
 import qualified Data.Text as T
 import Data.Tree (Tree (Node), drawTree, unfoldForest)
 import Debug.Trace
-import Text.Pandoc.Definition as Pandoc (Attr, Block (..), Inline (..), Pandoc (..), Target)
-
-data BlockNode = PandocBlock Pandoc.Block | ListItem [Pandoc.Block] deriving (Show, Eq)
-
-data LinkMark = Link Pandoc.Attr Pandoc.Target deriving (Show, Eq)
-
-data Mark = EmphMark | StrongMark | LinkMark LinkMark deriving (Show, Eq)
-
-data TextSpan = TextSpan {value :: T.Text, marks :: [Mark]} deriving (Show, Eq)
-
-instance Semigroup TextSpan where
-  (<>) (TextSpan value1 marks1) (TextSpan value2 marks2) = TextSpan (value1 <> value2) (marks1 <> marks2)
-
-instance Monoid TextSpan where
-  mempty = TextSpan T.empty []
+import DocTree.Common (BlockNode (..), LinkMark (..), Mark (..), TextSpan (..))
+import Text.Pandoc.Definition as Pandoc (Block (..), Inline (..), Pandoc (..))
 
 data InlineNode = InlineContent [TextSpan] deriving (Show, Eq)
 
@@ -72,7 +59,7 @@ inlineToTextSpan inline = case inline of
   Pandoc.Space -> [TextSpan (T.pack " ") []]
   Pandoc.Strong inlines -> addMark StrongMark inlines
   Pandoc.Emph inlines -> addMark EmphMark inlines
-  Pandoc.Link attrs inlines target -> addMark (LinkMark $ DocTree.Link attrs target) inlines
+  Pandoc.Link attrs inlines target -> addMark (LinkMark $ DocTree.Common.Link attrs target) inlines
   -- TODO: Handle other inline elements
   _ -> []
 

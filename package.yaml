@@ -42,6 +42,7 @@ library:
     - text >= 2.1.1
     - tree-diff >= 0.3.4
   other-modules:
+    - DocTree.Common
     - DocTree.GroupedInlines
     - DocTree.LeafTextSpans
 
