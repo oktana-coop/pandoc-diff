@@ -41,6 +41,9 @@ library:
     - pandoc-types >= 1.23.1
     - text >= 2.1.1
     - tree-diff >= 0.3.4
+  other-modules:
+    - DocTree.GroupedInlines
+    - DocTree.LeafTextSpans
 
 executables:
   pandoc-diff:

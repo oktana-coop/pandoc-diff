@@ -9,7 +9,7 @@ import qualified Data.Text as T
 import Data.Tree (Tree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
-import DocTree (BlockNode (..), DocNode (..), InlineNode (..), Mark (..), TextSpan (..), TreeNode (..), toTree, traceTree)
+import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), Mark (..), TextSpan (..), TreeNode (..), toTree, traceTree)
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
 data FormattedCharacter = FormattedCharacter {char :: Char, charMarks :: [Mark]} deriving (Show, Eq)

@@ -1,4 +1,4 @@
-module DocTree (BlockNode (..), InlineNode (..), TextSpan (..), DocNode (..), TreeNode (..), Mark (..), toTree, traceTree) where
+module DocTree.GroupedInlines (BlockNode (..), InlineNode (..), TextSpan (..), DocNode (..), TreeNode (..), Mark (..), toTree, traceTree) where
 
 import qualified Data.Text as T
 import Data.Tree (Tree (Node), drawTree, unfoldForest)

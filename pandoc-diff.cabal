@@ -24,10 +24,10 @@ source-repository head
 
 library
   exposed-modules:
-      DocTree
       RichTextDiff
   other-modules:
-      Paths_pandoc_diff
+      DocTree.GroupedInlines
+      DocTree.LeafTextSpans
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
