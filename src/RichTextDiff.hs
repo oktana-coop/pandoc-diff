@@ -165,7 +165,7 @@ groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
     groupOrAppendAdjacent formattedCharWithDiffOp (firstOfRest : rest) =
       if (diffOpSame formattedCharWithDiffOp firstOfRest && characterAndTextSpanMarksSame formattedCharWithDiffOp firstOfRest)
         -- if the element's marks are the same with the one to its right, we merge them and then add them to the rest of the fold.
-        then (fmap (appendCharToTextSpan c) firstOfRest) : rest
+        then (fmap (mergeCharToTextSpan c) firstOfRest) : rest
         -- if they are not the same we end up with an extra text span in the list for the current element (we prepend it to the existing list for the fold.)
         else fmap textSpanFromFormattedChar formattedCharWithDiffOp : firstOfRest : rest
       where
@@ -180,11 +180,11 @@ groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
     characterAndTextSpanMarksSame :: RichTextDiffOp FormattedCharacter -> RichTextDiffOp TextSpan -> Bool
     characterAndTextSpanMarksSame formattedCharWithDiffOp textSpan = (charMarks . unpackDiffOpValue) formattedCharWithDiffOp == (marks $ unpackDiffOpValue textSpan)
 
-    appendCharToTextSpan :: Char -> TextSpan -> TextSpan
-    appendCharToTextSpan c textSpan = TextSpan (appendChar c (value textSpan)) (marks textSpan)
+    mergeCharToTextSpan :: Char -> TextSpan -> TextSpan
+    mergeCharToTextSpan c textSpan = TextSpan (mergeCharToText c (value textSpan)) (marks textSpan)
 
-    appendChar :: Char -> T.Text -> T.Text
-    appendChar c txt = txt `T.snoc` c
+    mergeCharToText :: Char -> T.Text -> T.Text
+    mergeCharToText c txt = c `T.cons` txt
 
 -- TODO: Use op type and make it parametric
 replaceWithInsOp :: Edit a -> Edit a
