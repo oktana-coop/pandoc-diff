@@ -4,7 +4,8 @@ module RichTextDiff
   )
 where
 
-import Data.Algorithm.Diff as ListDiff (Diff, getDiff)
+import Data.Algorithm.Diff as ListDiff (PolyDiff (..), getDiffBy)
+import Data.List (sort)
 import qualified Data.Text as T
 import Data.Tree (Tree, unfoldTree)
 import Data.TreeDiff (Edit (..))
@@ -16,7 +17,7 @@ import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
 data FormattedCharacter = FormattedCharacter {char :: Char, charMarks :: [Mark]} deriving (Show, Eq)
 
-data MarkDiff = MarkDiff [Mark] [Mark] deriving (Show, Eq)
+data MarkDiff = MarkDiff [Mark] [Mark] deriving (Show, Eq, Ord)
 
 data HeadingLevelDiff = HeadingLevelDiff Int Int deriving (Show, Eq)
 
@@ -113,7 +114,24 @@ handleSwappedSubForests :: [Edit (EditTree DocTree.GroupedInlines.DocNode)] -> [
 handleSwappedSubForests deletedSubForests insertedSubForests = (map (TreeEditScript . replaceWithDelOp) deletedSubForests) <> (map (TreeEditScript . replaceWithInsOp) insertedSubForests)
 
 diffInlineNodes :: DocTree.GroupedInlines.InlineNode -> DocTree.GroupedInlines.InlineNode -> [EditScript]
-diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ ListDiff.getDiff (toFormattedText deletedInlineNode) (toFormattedText addedInlineNode)
+diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffFormattedText (toFormattedText deletedInlineNode) (toFormattedText addedInlineNode)
+
+diffFormattedText :: [FormattedCharacter] -> [FormattedCharacter] -> [RichTextDiffOp FormattedCharacter]
+diffFormattedText formattedText1 formattedText2 = map compareFormattingForUnchangedChars $ ListDiff.getDiffBy isCharSame formattedText1 formattedText2
+  where
+    isCharSame :: FormattedCharacter -> FormattedCharacter -> Bool
+    isCharSame formattedChar1 formattedChar2 = (char formattedChar1) == (char formattedChar2)
+
+    compareFormattingForUnchangedChars :: ListDiff.PolyDiff FormattedCharacter FormattedCharacter -> RichTextDiffOp FormattedCharacter
+    compareFormattingForUnchangedChars (First formattedChar) = Delete formattedChar
+    compareFormattingForUnchangedChars (Second formattedChar) = Insert formattedChar
+    compareFormattingForUnchangedChars (Both formattedChar1 formattedChar2) =
+      if (char1Marks == char2Marks)
+        then Copy formattedChar1
+        else UpdateMarks (MarkDiff char1Marks char2Marks) formattedChar2
+      where
+        char1Marks = sort $ charMarks formattedChar1
+        char2Marks = sort $ charMarks formattedChar2
 
 toFormattedText :: DocTree.GroupedInlines.InlineNode -> [FormattedCharacter]
 toFormattedText (DocTree.GroupedInlines.InlineContent textSpans) = concatMap textSpanToFormattedText textSpans
@@ -121,8 +139,8 @@ toFormattedText (DocTree.GroupedInlines.InlineContent textSpans) = concatMap tex
 textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
 textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
 
-buildAnnotatedInlineNodeFromDiff :: [ListDiff.Diff FormattedCharacter] -> [EditScript]
-buildAnnotatedInlineNodeFromDiff listDiff = fmap InlineEditScript $ groupSameMarkAndDiffOpChars $ map listDiffToRichTextDiff listDiff
+buildAnnotatedInlineNodeFromDiff :: [RichTextDiffOp FormattedCharacter] -> [EditScript]
+buildAnnotatedInlineNodeFromDiff = (fmap InlineEditScript) . groupSameMarkAndDiffOpChars
 
 groupSameMarkAndDiffOpChars :: [RichTextDiffOp FormattedCharacter] -> [RichTextDiffOp TextSpan]
 groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
@@ -155,9 +173,6 @@ groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
 
     appendChar :: Char -> T.Text -> T.Text
     appendChar c txt = txt `T.snoc` c
-
-listDiffToRichTextDiff :: ListDiff.Diff FormattedCharacter -> RichTextDiffOp FormattedCharacter
-listDiffToRichTextDiff = undefined
 
 -- TODO: Use op type and make it parametric
 replaceWithInsOp :: Edit a -> Edit a

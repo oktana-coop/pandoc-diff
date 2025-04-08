@@ -1,3 +1,5 @@
+{-# LANGUAGE InstanceSigs #-}
+
 module DocTree.Common (BlockNode (..), TextSpan (..), Mark (..), LinkMark (..)) where
 
 import qualified Data.Text as T
@@ -7,7 +9,11 @@ data BlockNode = PandocBlock Pandoc.Block | ListItem [Pandoc.Block] deriving (Sh
 
 data LinkMark = Link Pandoc.Attr Pandoc.Target deriving (Show, Eq)
 
-data Mark = EmphMark | StrongMark | LinkMark LinkMark deriving (Show, Eq)
+instance Ord LinkMark where
+  compare :: LinkMark -> LinkMark -> Ordering
+  compare (Link _ target1) (Link _ target2) = compare target1 target2
+
+data Mark = EmphMark | StrongMark | LinkMark LinkMark deriving (Show, Eq, Ord)
 
 data TextSpan = TextSpan {value :: T.Text, marks :: [Mark]} deriving (Show, Eq)
 
