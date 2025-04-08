@@ -115,6 +115,9 @@ annotatedTreeNodeUnfolder (TreeEditScript (Del (EditNode (DocTree.GroupedInlines
 -- In the case of swapping inlines, we call `diffInlineNodes` to handle inline node diffing with an algorithm that diffs inline text (not trees).
 annotatedTreeNodeUnfolder (TreeEditScript (Swp (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.InlineNode inlineNode1)) _) (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.InlineNode inlineNode2)) _))) =
   (Copy $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.InlineNode, diffInlineNodes inlineNode1 inlineNode2)
+-- Wrap the diffed text span with the tree node constructors
+annotatedTreeNodeUnfolder (InlineEditScript inlineEditScript) =
+  (fmap (DocTree.LeafTextSpans.TreeNode . DocTree.LeafTextSpans.InlineContent) inlineEditScript, [])
 -- Other cases (taking different types of nodes as input from the edit script)
 -- TODO: Here we must return an error because we are in cases where the edit script is wrong (e.g. trying to replace the Root node with another block or inline node).
 annotatedTreeNodeUnfolder _ = undefined
