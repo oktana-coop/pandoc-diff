@@ -51,17 +51,19 @@ instance Functor RichTextDiffOp where
   fmap f (UpdateMarks markDiff a) = UpdateMarks markDiff (f a)
   fmap f (UpdateHeadingLevel levelDiff a) = UpdateHeadingLevel levelDiff (f a)
 
+data EditScript = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode)) | InlineEditScript (RichTextDiffOp TextSpan) deriving (Show)
+
 diff :: Pandoc.Pandoc -> Pandoc.Pandoc -> Pandoc.Pandoc
 diff pandoc1 pandoc2 = (toPandoc . unfoldAnnotatedTreeFromEditScript) editScript
   where
-    tree1 = traceTree $ toTree pandoc1
-    tree2 = traceTree $ toTree pandoc2
+    tree1 = traceTree $ DocTree.GroupedInlines.toTree pandoc1
+    tree2 = traceTree $ DocTree.GroupedInlines.toTree pandoc2
     -- Diff the 2 trees and get the edit script
     editScript = TreeEditScript $ treeDiff tree1 tree2
 
 -- TODO: Remove when all the components of the diff function (annotateTreeWithDiffs, toPandoc) are implemented
 getEditScript :: Pandoc.Pandoc -> Pandoc.Pandoc -> EditScript
-getEditScript pandoc1 pandoc2 = TreeEditScript $ treeDiff (traceTree $ toTree pandoc1) (traceTree $ toTree pandoc2)
+getEditScript pandoc1 pandoc2 = TreeEditScript $ treeDiff (traceTree $ DocTree.GroupedInlines.toTree pandoc1) (traceTree $ DocTree.GroupedInlines.toTree pandoc2)
 
 -- Produce the annotated tree from the edit script that contains the diffs
 unfoldAnnotatedTreeFromEditScript :: EditScript -> Tree (RichTextDiffOp DocTree.LeafTextSpans.DocNode)
@@ -69,8 +71,6 @@ unfoldAnnotatedTreeFromEditScript = unfoldTree annotatedTreeNodeUnfolder
 
 toPandoc :: Tree (RichTextDiffOp DocTree.LeafTextSpans.DocNode) -> Pandoc.Pandoc
 toPandoc = undefined
-
-data EditScript = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode)) | InlineEditScript (RichTextDiffOp TextSpan) deriving (Show)
 
 annotatedTreeNodeUnfolder :: EditScript -> (RichTextDiffOp DocTree.LeafTextSpans.DocNode, [EditScript])
 -- Root node
