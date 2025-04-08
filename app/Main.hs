@@ -3,7 +3,7 @@ module Main (main) where
 import Cli (Command (..), Format (..), readInputCommand)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
-import RichTextDiff (getEditScript)
+import RichTextDiff (getAnnotatedTree)
 import Text.Pandoc (Pandoc, PandocIO, ReaderOptions, def, handleError, readHtml, readJSON, readMarkdown, readNative)
 import Text.Pandoc.Class (runIO)
 
@@ -21,4 +21,4 @@ main = do
   doc1 <- handleError eitherDoc1
   eitherDoc2 <- runIO $ readFrom format def (T.pack doc2Str)
   doc2 <- handleError eitherDoc2
-  TIO.putStrLn $ T.pack $ show $ getEditScript doc1 doc2
+  TIO.putStrLn $ T.pack $ show $ getAnnotatedTree doc1 doc2

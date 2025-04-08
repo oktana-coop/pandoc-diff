@@ -1,17 +1,18 @@
 module RichTextDiff
   ( diff,
-    getEditScript,
+    getAnnotatedTree,
   )
 where
 
 import Data.Algorithm.Diff as ListDiff (PolyDiff (..), getDiffBy)
 import Data.List (sort)
 import qualified Data.Text as T
-import Data.Tree (Tree, unfoldTree)
+import Data.Tree (Tree, drawTree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
+import Debug.Trace
 import DocTree.Common (Mark (..), TextSpan (..))
-import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), TreeNode (..), toTree, traceTree)
+import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), TreeNode (..), toTree)
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
@@ -54,6 +55,9 @@ instance Functor RichTextDiffOp where
 
 data EditScript = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode)) | InlineEditScript (RichTextDiffOp TextSpan) deriving (Show)
 
+traceTree :: (Show a) => Tree a -> Tree a
+traceTree tree = Debug.Trace.trace (drawTree $ fmap show tree) tree
+
 diff :: Pandoc.Pandoc -> Pandoc.Pandoc -> Pandoc.Pandoc
 diff pandoc1 pandoc2 = (toPandoc . unfoldAnnotatedTreeFromEditScript) editScript
   where
@@ -63,8 +67,13 @@ diff pandoc1 pandoc2 = (toPandoc . unfoldAnnotatedTreeFromEditScript) editScript
     editScript = TreeEditScript $ treeDiff tree1 tree2
 
 -- TODO: Remove when all the components of the diff function (annotateTreeWithDiffs, toPandoc) are implemented
-getEditScript :: Pandoc.Pandoc -> Pandoc.Pandoc -> EditScript
-getEditScript pandoc1 pandoc2 = TreeEditScript $ treeDiff (traceTree $ DocTree.GroupedInlines.toTree pandoc1) (traceTree $ DocTree.GroupedInlines.toTree pandoc2)
+getAnnotatedTree :: Pandoc.Pandoc -> Pandoc.Pandoc -> Tree (RichTextDiffOp DocTree.LeafTextSpans.DocNode)
+getAnnotatedTree pandoc1 pandoc2 = traceTree $ unfoldAnnotatedTreeFromEditScript editScript
+  where
+    tree1 = traceTree $ DocTree.GroupedInlines.toTree pandoc1
+    tree2 = traceTree $ DocTree.GroupedInlines.toTree pandoc2
+    -- Diff the 2 trees and get the edit script
+    editScript = TreeEditScript $ treeDiff tree1 tree2
 
 -- Produce the annotated tree from the edit script that contains the diffs
 unfoldAnnotatedTreeFromEditScript :: EditScript -> Tree (RichTextDiffOp DocTree.LeafTextSpans.DocNode)

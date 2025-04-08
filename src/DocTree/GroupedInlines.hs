@@ -1,8 +1,7 @@
-module DocTree.GroupedInlines (BlockNode (..), InlineNode (..), DocNode (..), TreeNode (..), toTree, traceTree) where
+module DocTree.GroupedInlines (BlockNode (..), InlineNode (..), DocNode (..), TreeNode (..), toTree) where
 
 import qualified Data.Text as T
-import Data.Tree (Tree (Node), drawTree, unfoldForest)
-import Debug.Trace
+import Data.Tree (Tree (Node), unfoldForest)
 import DocTree.Common (BlockNode (..), LinkMark (..), Mark (..), TextSpan (..))
 import Text.Pandoc.Definition as Pandoc (Block (..), Inline (..), Pandoc (..))
 
@@ -11,9 +10,6 @@ data InlineNode = InlineContent [TextSpan] deriving (Show, Eq)
 data TreeNode = BlockNode BlockNode | InlineNode InlineNode deriving (Show, Eq)
 
 data DocNode = Root | TreeNode TreeNode deriving (Show, Eq)
-
-traceTree :: Tree DocNode -> Tree DocNode
-traceTree tree = Debug.Trace.trace (drawTree $ fmap show tree) tree
 
 toTree :: Pandoc.Pandoc -> Tree DocNode
 toTree (Pandoc.Pandoc _ blocks) = Node Root $ unfoldForest treeNodeUnfolder $ map (BlockNode . PandocBlock) blocks
