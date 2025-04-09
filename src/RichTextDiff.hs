@@ -28,6 +28,7 @@ instance Eq ComparePlainText where
   (ComparePlainText (FormattedCharacter c1 _)) == (ComparePlainText (FormattedCharacter c2 _)) = c1 == c2
 
 instance Ord ComparePlainText where
+  compare :: ComparePlainText -> ComparePlainText -> Ordering
   compare (ComparePlainText a) (ComparePlainText b) = compare (char a) (char b)
 
 data FormattedToken = FormattedToken {tokenText :: T.Text, tokenChars :: [FormattedCharacter]} deriving (Show, Eq, Ord)
