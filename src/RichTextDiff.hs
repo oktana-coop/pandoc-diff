@@ -1,10 +1,11 @@
+{-# LANGUAGE InstanceSigs #-}
+
 module RichTextDiff
-  ( diff,
+  ( RichTextDiff.diff,
     getAnnotatedTree,
   )
 where
 
-import Data.Algorithm.Diff as ListDiff (PolyDiff (..), getDiffBy)
 import Data.List (sort)
 import qualified Data.Text as T
 import Data.Tree (Tree, drawTree, unfoldTree)
@@ -14,9 +15,19 @@ import Debug.Trace
 import DocTree.Common (Mark (..), TextSpan (..))
 import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), TreeNode (..), toTree)
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
+import Patience (Item (..), diff)
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
 data FormattedCharacter = FormattedCharacter {char :: Char, charMarks :: [Mark]} deriving (Show, Eq)
+
+newtype ComparePlainText = ComparePlainText FormattedCharacter
+
+instance Eq ComparePlainText where
+  (==) :: ComparePlainText -> ComparePlainText -> Bool
+  (ComparePlainText (FormattedCharacter c1 _)) == (ComparePlainText (FormattedCharacter c2 _)) = c1 == c2
+
+instance Ord ComparePlainText where
+  compare (ComparePlainText a) (ComparePlainText b) = compare (char a) (char b)
 
 data MarkDiff = MarkDiff [Mark] [Mark] deriving (Show, Eq, Ord)
 
@@ -129,15 +140,12 @@ diffInlineNodes :: DocTree.GroupedInlines.InlineNode -> DocTree.GroupedInlines.I
 diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffFormattedText (toFormattedText deletedInlineNode) (toFormattedText addedInlineNode)
 
 diffFormattedText :: [FormattedCharacter] -> [FormattedCharacter] -> [RichTextDiffOp FormattedCharacter]
-diffFormattedText formattedText1 formattedText2 = map compareFormattingForUnchangedChars $ ListDiff.getDiffBy isCharSame formattedText1 formattedText2
+diffFormattedText formattedText1 formattedText2 = map compareFormattingForUnchangedChars $ Patience.diff (map ComparePlainText formattedText1) (map ComparePlainText formattedText2)
   where
-    isCharSame :: FormattedCharacter -> FormattedCharacter -> Bool
-    isCharSame formattedChar1 formattedChar2 = (char formattedChar1) == (char formattedChar2)
-
-    compareFormattingForUnchangedChars :: ListDiff.PolyDiff FormattedCharacter FormattedCharacter -> RichTextDiffOp FormattedCharacter
-    compareFormattingForUnchangedChars (First formattedChar) = Delete formattedChar
-    compareFormattingForUnchangedChars (Second formattedChar) = Insert formattedChar
-    compareFormattingForUnchangedChars (Both formattedChar1 formattedChar2) =
+    compareFormattingForUnchangedChars :: Patience.Item ComparePlainText -> RichTextDiffOp FormattedCharacter
+    compareFormattingForUnchangedChars (Patience.Old (ComparePlainText (formattedChar))) = Delete formattedChar
+    compareFormattingForUnchangedChars (Patience.New (ComparePlainText (formattedChar))) = Insert formattedChar
+    compareFormattingForUnchangedChars (Patience.Both (ComparePlainText (formattedChar1)) (ComparePlainText (formattedChar2))) =
       if (char1Marks == char2Marks)
         then Copy formattedChar1
         else UpdateMarks (MarkDiff char1Marks char2Marks) formattedChar2

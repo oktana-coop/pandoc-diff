@@ -36,9 +36,9 @@ library:
   source-dirs: src
   dependencies:
     - containers >= 0.7
-    - Diff >= 1.0.2
     - pandoc >= 3.5
     - pandoc-types >= 1.23.1
+    - patience >= 0.3
     - text >= 2.1.1
     - tree-diff >= 0.3.4
   other-modules:
