@@ -6,6 +6,7 @@ module RichTextDiff
   )
 where
 
+import Data.Char (isSpace)
 import Data.List (sort)
 import qualified Data.Text as T
 import Data.Tree (Tree, drawTree, unfoldTree)
@@ -18,7 +19,7 @@ import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
-data FormattedCharacter = FormattedCharacter {char :: Char, charMarks :: [Mark]} deriving (Show, Eq)
+data FormattedCharacter = FormattedCharacter {char :: Char, charMarks :: [Mark]} deriving (Show, Eq, Ord)
 
 newtype ComparePlainText = ComparePlainText FormattedCharacter
 
@@ -28,6 +29,8 @@ instance Eq ComparePlainText where
 
 instance Ord ComparePlainText where
   compare (ComparePlainText a) (ComparePlainText b) = compare (char a) (char b)
+
+data FormattedToken = FormattedToken {tokenText :: T.Text, tokenChars :: [FormattedCharacter]} deriving (Show, Eq, Ord)
 
 data MarkDiff = MarkDiff [Mark] [Mark] deriving (Show, Eq, Ord)
 
@@ -137,27 +140,73 @@ handleSwappedSubForests :: [Edit (EditTree DocTree.GroupedInlines.DocNode)] -> [
 handleSwappedSubForests deletedSubForests insertedSubForests = (map (TreeEditScript . replaceWithDelOp) deletedSubForests) <> (map (TreeEditScript . replaceWithInsOp) insertedSubForests)
 
 diffInlineNodes :: DocTree.GroupedInlines.InlineNode -> DocTree.GroupedInlines.InlineNode -> [EditScript]
-diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffFormattedText (toFormattedText deletedInlineNode) (toFormattedText addedInlineNode)
-
-diffFormattedText :: [FormattedCharacter] -> [FormattedCharacter] -> [RichTextDiffOp FormattedCharacter]
-diffFormattedText formattedText1 formattedText2 = map compareFormattingForUnchangedChars $ Patience.diff (map ComparePlainText formattedText1) (map ComparePlainText formattedText2)
-  where
-    compareFormattingForUnchangedChars :: Patience.Item ComparePlainText -> RichTextDiffOp FormattedCharacter
-    compareFormattingForUnchangedChars (Patience.Old (ComparePlainText (formattedChar))) = Delete formattedChar
-    compareFormattingForUnchangedChars (Patience.New (ComparePlainText (formattedChar))) = Insert formattedChar
-    compareFormattingForUnchangedChars (Patience.Both (ComparePlainText (formattedChar1)) (ComparePlainText (formattedChar2))) =
-      if (char1Marks == char2Marks)
-        then Copy formattedChar1
-        else UpdateMarks (MarkDiff char1Marks char2Marks) formattedChar2
-      where
-        char1Marks = sort $ charMarks formattedChar1
-        char2Marks = sort $ charMarks formattedChar2
+diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffFormattedTokens ((tokenizeFormattedText . toFormattedText) deletedInlineNode) ((tokenizeFormattedText . toFormattedText) addedInlineNode)
 
 toFormattedText :: DocTree.GroupedInlines.InlineNode -> [FormattedCharacter]
 toFormattedText (DocTree.GroupedInlines.InlineContent textSpans) = concatMap textSpanToFormattedText textSpans
 
 textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
 textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
+
+tokenizeFormattedText :: [FormattedCharacter] -> [FormattedToken]
+tokenizeFormattedText = map createToken . groupBySpacesAndFormatting
+  where
+    groupBySpacesAndFormatting :: [FormattedCharacter] -> [[FormattedCharacter]]
+    groupBySpacesAndFormatting [] = []
+    groupBySpacesAndFormatting (x : xs) = (x : group) : groupBySpacesAndFormatting rest
+      where
+        (group, rest) = span (isSameFormattingOrSpace x) xs
+
+    isSameFormattingOrSpace :: FormattedCharacter -> FormattedCharacter -> Bool
+    isSameFormattingOrSpace fc1 fc2 =
+      isSameFormatting fc1 fc2 || isSpaceChar fc1 == isSpaceChar fc2
+
+    -- Check if two characters have the same formatting
+    isSameFormatting :: FormattedCharacter -> FormattedCharacter -> Bool
+    isSameFormatting fc1 fc2 = charMarks fc1 == charMarks fc2
+
+    isSpaceChar :: FormattedCharacter -> Bool
+    isSpaceChar fc = isSpace (char fc)
+
+    -- Helper function to create a FormattedToken from a group of characters
+    createToken :: [FormattedCharacter] -> FormattedToken
+    createToken charsGroup = FormattedToken (T.pack (map char charsGroup)) charsGroup
+
+diffFormattedTokens :: [FormattedToken] -> [FormattedToken] -> [RichTextDiffOp FormattedCharacter]
+diffFormattedTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.diff tokens1 tokens2
+  where
+    resolveTokenDiff :: Patience.Item FormattedToken -> [RichTextDiffOp FormattedCharacter]
+    resolveTokenDiff (Patience.Old t) = map Delete (tokenChars t)
+    resolveTokenDiff (Patience.New t) = map Insert (tokenChars t)
+    resolveTokenDiff (Patience.Both t1 t2) =
+      if tokenText t1 == tokenText t2
+        then diffFormatting t1 t2
+        -- Fallback char-by-char diff
+        else diffFormattedText (tokenChars t1) (tokenChars t2)
+
+    diffFormatting :: FormattedToken -> FormattedToken -> [RichTextDiffOp FormattedCharacter]
+    diffFormatting (FormattedToken _ chars1) (FormattedToken _ chars2) = zipWith compareCharFormatting chars1 chars2
+
+    diffFormattedText :: [FormattedCharacter] -> [FormattedCharacter] -> [RichTextDiffOp FormattedCharacter]
+    diffFormattedText formattedText1 formattedText2 =
+      map compareFormattingForUnchangedChars $ Patience.diff (map ComparePlainText formattedText1) (map ComparePlainText formattedText2)
+      where
+        compareFormattingForUnchangedChars :: Patience.Item ComparePlainText -> RichTextDiffOp FormattedCharacter
+        compareFormattingForUnchangedChars (Patience.Old (ComparePlainText fc)) = Delete fc
+        compareFormattingForUnchangedChars (Patience.New (ComparePlainText fc)) = Insert fc
+        compareFormattingForUnchangedChars (Patience.Both (ComparePlainText fc1) (ComparePlainText fc2)) = compareCharFormatting fc1 fc2
+
+    compareCharFormatting :: FormattedCharacter -> FormattedCharacter -> RichTextDiffOp FormattedCharacter
+    compareCharFormatting fc1 fc2 =
+      if normalizedC1Marks == normalizedC2Marks
+        then Copy fc1
+        else UpdateMarks (MarkDiff normalizedC1Marks normalizedC2Marks) fc2
+      where
+        normalizedC1Marks = normalizeMarks (charMarks fc1)
+        normalizedC2Marks = normalizeMarks (charMarks fc2)
+
+        normalizeMarks :: [Mark] -> [Mark]
+        normalizeMarks = sort
 
 buildAnnotatedInlineNodeFromDiff :: [RichTextDiffOp FormattedCharacter] -> [EditScript]
 buildAnnotatedInlineNodeFromDiff = (fmap InlineEditScript) . groupSameMarkAndDiffOpChars
