@@ -24,8 +24,10 @@ source-repository head
 
 library
   exposed-modules:
-      RichTextDiff
+      Diff.RichText
   other-modules:
+      Diff.RichTextAnalysis
+      Diff.RichTextDiffOp
       DocTree.Common
       DocTree.GroupedInlines
       DocTree.LeafTextSpans

@@ -1,25 +1,24 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module RichTextDiff
-  ( RichTextDiff.diff,
+module Diff.RichText
+  ( Diff.RichText.diff,
     getAnnotatedTree,
   )
 where
 
-import Data.Char (isSpace)
 import Data.List (sort)
 import qualified Data.Text as T
 import Data.Tree (Tree, drawTree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
 import Debug.Trace
+import Diff.RichTextAnalysis (FormattedCharacter (..), FormattedToken (..), textSpanToFormattedText, tokenizeFormattedText)
+import Diff.RichTextDiffOp (MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
 import DocTree.Common (Mark (..), TextSpan (..))
 import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), TreeNode (..), toTree)
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
-
-data FormattedCharacter = FormattedCharacter {char :: Char, charMarks :: [Mark]} deriving (Show, Eq, Ord)
 
 newtype ComparePlainText = ComparePlainText FormattedCharacter
 
@@ -30,43 +29,6 @@ instance Eq ComparePlainText where
 instance Ord ComparePlainText where
   compare :: ComparePlainText -> ComparePlainText -> Ordering
   compare (ComparePlainText a) (ComparePlainText b) = compare (char a) (char b)
-
-data FormattedToken = FormattedToken {tokenText :: T.Text, tokenChars :: [FormattedCharacter]} deriving (Show, Eq, Ord)
-
-data MarkDiff = MarkDiff [Mark] [Mark] deriving (Show, Eq, Ord)
-
-data HeadingLevelDiff = HeadingLevelDiff Int Int deriving (Show, Eq)
-
-data RichTextDiffOp a = Insert a | Delete a | Copy a | UpdateMarks MarkDiff a | UpdateHeadingLevel HeadingLevelDiff a deriving (Show, Eq)
-
-data RichTextDiffOpType
-  = InsertType
-  | DeleteType
-  | CopyType
-  | UpdateMarksType
-  | UpdateHeadingLevelType
-  deriving (Show, Eq)
-
-getDiffOpType :: RichTextDiffOp a -> RichTextDiffOpType
-getDiffOpType (Insert _) = InsertType
-getDiffOpType (Delete _) = DeleteType
-getDiffOpType (Copy _) = CopyType
-getDiffOpType (UpdateMarks _ _) = UpdateMarksType
-getDiffOpType (UpdateHeadingLevel _ _) = UpdateHeadingLevelType
-
-unpackDiffOpValue :: RichTextDiffOp a -> a
-unpackDiffOpValue (Insert a) = a
-unpackDiffOpValue (Delete a) = a
-unpackDiffOpValue (Copy a) = a
-unpackDiffOpValue (UpdateMarks _ a) = a
-unpackDiffOpValue (UpdateHeadingLevel _ a) = a
-
-instance Functor RichTextDiffOp where
-  fmap f (Insert a) = Insert (f a)
-  fmap f (Delete a) = Delete (f a)
-  fmap f (Copy a) = Copy (f a)
-  fmap f (UpdateMarks markDiff a) = UpdateMarks markDiff (f a)
-  fmap f (UpdateHeadingLevel levelDiff a) = UpdateHeadingLevel levelDiff (f a)
 
 data EditScript = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode)) | InlineEditScript (RichTextDiffOp TextSpan) deriving (Show)
 
@@ -145,33 +107,6 @@ diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFrom
 
 toFormattedText :: DocTree.GroupedInlines.InlineNode -> [FormattedCharacter]
 toFormattedText (DocTree.GroupedInlines.InlineContent textSpans) = concatMap textSpanToFormattedText textSpans
-
-textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
-textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
-
-tokenizeFormattedText :: [FormattedCharacter] -> [FormattedToken]
-tokenizeFormattedText = map createToken . groupBySpacesAndFormatting
-  where
-    groupBySpacesAndFormatting :: [FormattedCharacter] -> [[FormattedCharacter]]
-    groupBySpacesAndFormatting [] = []
-    groupBySpacesAndFormatting (x : xs) = (x : group) : groupBySpacesAndFormatting rest
-      where
-        (group, rest) = span (isSameFormattingOrSpace x) xs
-
-    isSameFormattingOrSpace :: FormattedCharacter -> FormattedCharacter -> Bool
-    isSameFormattingOrSpace fc1 fc2 =
-      isSameFormatting fc1 fc2 || isSpaceChar fc1 == isSpaceChar fc2
-
-    -- Check if two characters have the same formatting
-    isSameFormatting :: FormattedCharacter -> FormattedCharacter -> Bool
-    isSameFormatting fc1 fc2 = charMarks fc1 == charMarks fc2
-
-    isSpaceChar :: FormattedCharacter -> Bool
-    isSpaceChar fc = isSpace (char fc)
-
-    -- Helper function to create a FormattedToken from a group of characters
-    createToken :: [FormattedCharacter] -> FormattedToken
-    createToken charsGroup = FormattedToken (T.pack (map char charsGroup)) charsGroup
 
 diffFormattedTokens :: [FormattedToken] -> [FormattedToken] -> [RichTextDiffOp FormattedCharacter]
 diffFormattedTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.diff tokens1 tokens2

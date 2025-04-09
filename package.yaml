@@ -42,9 +42,13 @@ library:
     - text >= 2.1.1
     - tree-diff >= 0.3.4
   other-modules:
+    - Diff.RichTextAnalysis
+    - Diff.RichTextDiffOp
     - DocTree.Common
     - DocTree.GroupedInlines
     - DocTree.LeafTextSpans
+  exposed-modules:
+    - Diff.RichText
 
 executables:
   pandoc-diff:
