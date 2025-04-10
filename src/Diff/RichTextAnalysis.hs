@@ -11,6 +11,7 @@ data FormattedToken = FormattedToken {tokenText :: T.Text, tokenChars :: [Format
 textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
 textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
 
+-- TODO: See if we canr refactor this part to use library functions like `words`.
 tokenizeFormattedText :: [FormattedCharacter] -> [FormattedToken]
 tokenizeFormattedText = map createToken . groupBySpaces
   where

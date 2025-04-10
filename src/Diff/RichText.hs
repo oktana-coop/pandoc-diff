@@ -20,6 +20,7 @@ import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
+-- Helper wrapper type used to compare the plain text (ignore formatting) when using the (patience) diff algorithm for characters.
 newtype ComparePlainText = ComparePlainText FormattedCharacter
 
 instance Eq ComparePlainText where
@@ -32,6 +33,7 @@ instance Ord ComparePlainText where
 
 newtype CompareTokenText = CompareTokenText FormattedToken
 
+-- Helper wrapper type used to compare the plain text (ignore formatting) when using the (patience) diff algorithm for words/tokens.
 instance Eq CompareTokenText where
   (==) :: CompareTokenText -> CompareTokenText -> Bool
   (CompareTokenText t1) == (CompareTokenText t2) = tokenText t1 == tokenText t2
