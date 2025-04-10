@@ -30,6 +30,16 @@ instance Ord ComparePlainText where
   compare :: ComparePlainText -> ComparePlainText -> Ordering
   compare (ComparePlainText a) (ComparePlainText b) = compare (char a) (char b)
 
+newtype CompareTokenText = CompareTokenText FormattedToken
+
+instance Eq CompareTokenText where
+  (==) :: CompareTokenText -> CompareTokenText -> Bool
+  (CompareTokenText t1) == (CompareTokenText t2) = tokenText t1 == tokenText t2
+
+instance Ord CompareTokenText where
+  compare :: CompareTokenText -> CompareTokenText -> Ordering
+  compare (CompareTokenText t1) (CompareTokenText t2) = compare (tokenText t1) (tokenText t2)
+
 data EditScript = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode)) | InlineEditScript (RichTextDiffOp TextSpan) deriving (Show)
 
 traceTree :: (Show a) => Tree a -> Tree a
@@ -109,12 +119,12 @@ toFormattedText :: DocTree.GroupedInlines.InlineNode -> [FormattedCharacter]
 toFormattedText (DocTree.GroupedInlines.InlineContent textSpans) = concatMap textSpanToFormattedText textSpans
 
 diffFormattedTokens :: [FormattedToken] -> [FormattedToken] -> [RichTextDiffOp FormattedCharacter]
-diffFormattedTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.diff tokens1 tokens2
+diffFormattedTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.diff (map CompareTokenText tokens1) (map CompareTokenText tokens2)
   where
-    resolveTokenDiff :: Patience.Item FormattedToken -> [RichTextDiffOp FormattedCharacter]
-    resolveTokenDiff (Patience.Old t) = map Delete (tokenChars t)
-    resolveTokenDiff (Patience.New t) = map Insert (tokenChars t)
-    resolveTokenDiff (Patience.Both t1 t2) =
+    resolveTokenDiff :: Patience.Item CompareTokenText -> [RichTextDiffOp FormattedCharacter]
+    resolveTokenDiff (Patience.Old (CompareTokenText t)) = map Delete (tokenChars t)
+    resolveTokenDiff (Patience.New (CompareTokenText t)) = map Insert (tokenChars t)
+    resolveTokenDiff (Patience.Both (CompareTokenText t1) (CompareTokenText t2)) =
       if tokenText t1 == tokenText t2
         then diffFormatting t1 t2
         -- Fallback char-by-char diff

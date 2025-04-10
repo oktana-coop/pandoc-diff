@@ -12,21 +12,16 @@ textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
 textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
 
 tokenizeFormattedText :: [FormattedCharacter] -> [FormattedToken]
-tokenizeFormattedText = map createToken . groupBySpacesAndFormatting
+tokenizeFormattedText = map createToken . groupBySpaces
   where
-    groupBySpacesAndFormatting :: [FormattedCharacter] -> [[FormattedCharacter]]
-    groupBySpacesAndFormatting [] = []
-    groupBySpacesAndFormatting (x : xs) = (x : group) : groupBySpacesAndFormatting rest
+    groupBySpaces :: [FormattedCharacter] -> [[FormattedCharacter]]
+    groupBySpaces [] = []
+    groupBySpaces (x : xs) = (x : group) : groupBySpaces rest
       where
-        (group, rest) = span (isSameFormattingOrSpace x) xs
+        (group, rest) = span (isFormattedSpace x) xs
 
-    isSameFormattingOrSpace :: FormattedCharacter -> FormattedCharacter -> Bool
-    isSameFormattingOrSpace fc1 fc2 =
-      isSameFormatting fc1 fc2 || isSpaceChar fc1 == isSpaceChar fc2
-
-    -- Check if two characters have the same formatting
-    isSameFormatting :: FormattedCharacter -> FormattedCharacter -> Bool
-    isSameFormatting fc1 fc2 = charMarks fc1 == charMarks fc2
+    isFormattedSpace :: FormattedCharacter -> FormattedCharacter -> Bool
+    isFormattedSpace fc1 fc2 = isSpaceChar fc1 == isSpaceChar fc2
 
     isSpaceChar :: FormattedCharacter -> Bool
     isSpaceChar fc = isSpace (char fc)
