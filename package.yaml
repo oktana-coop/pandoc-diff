@@ -35,6 +35,8 @@ ghc-options:
 library:
   source-dirs: src
   dependencies:
+    - name: pandoc-tree
+      path: ../pandoc-tree
     - containers >= 0.7
     - pandoc >= 3.5
     - pandoc-types >= 1.23.1
@@ -43,12 +45,9 @@ library:
     - tree-diff >= 0.3.4
   other-modules:
     - Diff.RichTextAnalysis
-    - Diff.RichTextDiffOp
-    - DocTree.Common
-    - DocTree.GroupedInlines
-    - DocTree.LeafTextSpans
   exposed-modules:
     - Diff.RichText
+    - Diff.RichTextDiffOp
 
 executables:
   pandoc-diff:

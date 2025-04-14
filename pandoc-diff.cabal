@@ -25,12 +25,9 @@ source-repository head
 library
   exposed-modules:
       Diff.RichText
+      Diff.RichTextDiffOp
   other-modules:
       Diff.RichTextAnalysis
-      Diff.RichTextDiffOp
-      DocTree.Common
-      DocTree.GroupedInlines
-      DocTree.LeafTextSpans
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -38,6 +35,7 @@ library
       base >=4.7 && <5
     , containers >=0.7
     , pandoc >=3.5
+    , pandoc-tree
     , pandoc-types >=1.23.1
     , patience >=0.3
     , text >=2.1.1
