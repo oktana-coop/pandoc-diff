@@ -1,4 +1,4 @@
-module Diff.RichTextAnalysis (FormattedCharacter (..), FormattedToken (..), textSpanToFormattedText, tokenizeFormattedText) where
+module RichTextAnalysis (FormattedCharacter (..), FormattedToken (..), textSpanToFormattedText, tokenizeFormattedText) where
 
 import Data.Char (isSpace)
 import qualified Data.Text as T

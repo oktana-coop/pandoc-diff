@@ -1,4 +1,4 @@
-module Diff.RichTextDiffOp (RichTextDiffOp (..), RichTextDiffOpType (..), MarkDiff (..), getDiffOpType, unpackDiffOpValue) where
+module RichTextDiffOp (RichTextDiffOp (..), RichTextDiffOpType (..), MarkDiff (..), getDiffOpType, unpackDiffOpValue) where
 
 import DocTree.Common (Mark (..))
 

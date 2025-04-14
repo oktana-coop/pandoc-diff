@@ -3,7 +3,7 @@ module Main (main) where
 import Cli (Command (..), Format (..), readInputCommand)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
-import Diff.RichText
+import RichTextDiff
 import Text.Pandoc (Pandoc, PandocIO, ReaderOptions, def, handleError, readHtml, readJSON, readMarkdown, readNative)
 import Text.Pandoc.Class (runIO)
 

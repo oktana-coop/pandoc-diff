@@ -43,11 +43,9 @@ library:
     - patience >= 0.3
     - text >= 2.1.1
     - tree-diff >= 0.3.4
-  other-modules:
-    - Diff.RichTextAnalysis
   exposed-modules:
-    - Diff.RichText
-    - Diff.RichTextDiffOp
+    - RichTextDiff
+    - RichTextDiffOp
 
 executables:
   pandoc-diff:

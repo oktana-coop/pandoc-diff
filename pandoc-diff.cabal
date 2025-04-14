@@ -24,10 +24,11 @@ source-repository head
 
 library
   exposed-modules:
-      Diff.RichText
-      Diff.RichTextDiffOp
+      RichTextDiff
+      RichTextDiffOp
   other-modules:
-      Diff.RichTextAnalysis
+      RichTextAnalysis
+      Paths_pandoc_diff
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints

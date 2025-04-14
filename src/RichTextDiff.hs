@@ -1,7 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module Diff.RichText
-  ( Diff.RichText.diff,
+module RichTextDiff
+  ( RichTextDiff.diff,
     getAnnotatedTree,
   )
 where
@@ -12,12 +12,12 @@ import Data.Tree (Tree, drawTree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
 import Debug.Trace
-import Diff.RichTextAnalysis (FormattedCharacter (..), FormattedToken (..), textSpanToFormattedText, tokenizeFormattedText)
-import Diff.RichTextDiffOp (MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
 import DocTree.Common (Mark (..), TextSpan (..))
 import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), TreeNode (..), toTree)
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
+import RichTextAnalysis (FormattedCharacter (..), FormattedToken (..), textSpanToFormattedText, tokenizeFormattedText)
+import RichTextDiffOp (MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
 import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
 
 -- Helper wrapper type used to compare the plain text (ignore formatting) when using the (patience) diff algorithm for characters.
