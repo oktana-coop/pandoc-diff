@@ -1,4 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
+-- Disabled orphan instance warning because we must define an `Eq` instance for EditTree.
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module RichTextDiff
   ( RichTextDiff.diff,
@@ -17,8 +19,11 @@ import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), Tr
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
 import RichTextAnalysis (FormattedCharacter (..), FormattedToken (..), textSpanToFormattedText, tokenizeFormattedText)
-import RichTextDiffOp (MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
-import Text.Pandoc.Definition as Pandoc (Block (Div), Pandoc, nullAttr)
+import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
+import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc, nullAttr)
+
+instance (Eq a) => Eq (EditTree a) where
+  (EditNode a1 edits1) == (EditNode a2 edits2) = a1 == a2 && edits1 == edits2
 
 -- Helper wrapper type used to compare the plain text (ignore formatting) when using the (patience) diff algorithm for characters.
 newtype ComparePlainText = ComparePlainText FormattedCharacter
@@ -42,7 +47,11 @@ instance Ord CompareTokenText where
   compare :: CompareTokenText -> CompareTokenText -> Ordering
   compare (CompareTokenText t1) (CompareTokenText t2) = compare (tokenText t1) (tokenText t2)
 
-data EditScript = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode)) | InlineEditScript (RichTextDiffOp TextSpan) deriving (Show)
+data EditScript
+  = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode))
+  | InlineEditScript (RichTextDiffOp TextSpan)
+  | InheritParentBlockEditScript (RichTextDiffOp (Edit (EditTree DocTree.GroupedInlines.DocNode)))
+  deriving (Show)
 
 traceTree :: (Show a) => Tree a -> Tree a
 traceTree tree = Debug.Trace.trace (drawTree $ fmap show tree) tree
@@ -90,9 +99,27 @@ annotatedTreeNodeUnfolder (TreeEditScript (Ins (EditNode (DocTree.GroupedInlines
   (Insert $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode blockNode, map (TreeEditScript . replaceWithInsOp) subForestEditScripts)
 annotatedTreeNodeUnfolder (TreeEditScript (Del (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =
   (Delete $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode blockNode, map (TreeEditScript . replaceWithDelOp) subForestEditScripts)
+-- In this case of swapping headings, check if the only thing that's changed is the heading level, in which case we return the respective diff type.
+-- Otherwise, it's regular block swap handling.
+annotatedTreeNodeUnfolder
+  ( TreeEditScript
+      ( Swp
+          block1@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode (PandocBlock heading1@(Pandoc.Header level1 _ _)))) subForest1EditScripts)
+          block2@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode (PandocBlock heading2@(Pandoc.Header level2 _ _)))) subForest2EditScripts)
+        )
+    ) =
+    if onlyHeadingLevelsDiffer heading1 heading2 && subForest1EditScripts == subForest2EditScripts
+      then handleHeadingLevelChange heading2 level1 level2 subForest2EditScripts
+      else handleSwappedBlocks block1 block2
 -- In this case of swapping blocks, we add a wrapper div container to the tree and create del+ins operations for the swapped blocks respectively.
-annotatedTreeNodeUnfolder (TreeEditScript (Swp block1@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode _)) _) block2@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode _)) _))) =
-  (Copy $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock $ Pandoc.Div nullAttr [], [(TreeEditScript . Del) block1, (TreeEditScript . Ins) block2])
+annotatedTreeNodeUnfolder
+  ( TreeEditScript
+      ( Swp
+          block1@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode _)) _)
+          block2@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode _)) _)
+        )
+    ) = handleSwappedBlocks block1 block2
+annotatedTreeNodeUnfolder (InheritParentBlockEditScript (Cpy (EditNode node subForestEditScripts))) = undefined
 -- Inline nodes
 -- We ignore the subforest edit scripts tree diffing gave us here. Any edit scripts may occur by inline diffing, which is handled by a different algorithm.
 annotatedTreeNodeUnfolder (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.InlineNode (DocTree.GroupedInlines.InlineContent textSpans))) _))) =
@@ -111,8 +138,22 @@ annotatedTreeNodeUnfolder (InlineEditScript inlineEditScript) =
 -- TODO: Here we must return an error because we are in cases where the edit script is wrong (e.g. trying to replace the Root node with another block or inline node).
 annotatedTreeNodeUnfolder _ = undefined
 
+-- To handle swapped blocks, add a wrapper div container to the tree and create del+ins operations for the swapped blocks respectively.
+handleSwappedBlocks :: EditTree DocTree.GroupedInlines.DocNode -> EditTree DocTree.GroupedInlines.DocNode -> (RichTextDiffOp DocTree.LeafTextSpans.DocNode, [EditScript])
+handleSwappedBlocks block1 block2 = (Copy $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock $ Pandoc.Div nullAttr [], [(TreeEditScript . Del) block1, (TreeEditScript . Ins) block2])
+
 handleSwappedSubForests :: [Edit (EditTree DocTree.GroupedInlines.DocNode)] -> [Edit (EditTree DocTree.GroupedInlines.DocNode)] -> [EditScript]
 handleSwappedSubForests deletedSubForests insertedSubForests = (map (TreeEditScript . replaceWithDelOp) deletedSubForests) <> (map (TreeEditScript . replaceWithInsOp) insertedSubForests)
+
+onlyHeadingLevelsDiffer :: Pandoc.Block -> Pandoc.Block -> Bool
+onlyHeadingLevelsDiffer (Pandoc.Header level1 attrs1 inlines1) (Pandoc.Header level2 attrs2 inlines2) = level1 /= level2 && attrs1 == attrs2 && inlines1 == inlines2
+onlyHeadingLevelsDiffer _ _ = False
+
+handleHeadingLevelChange :: Pandoc.Block -> Int -> Int -> [Edit (EditTree DocTree.GroupedInlines.DocNode)] -> (RichTextDiffOp DocTree.LeafTextSpans.DocNode, [EditScript])
+handleHeadingLevelChange heading level1 level2 headingSubforests = (produceHeadingLevelChangeDiffOp heading level1 level2, map (InheritParentBlockEditScript . UpdateHeadingLevel (HeadingLevelDiff level1 level2)) headingSubforests)
+  where
+    produceHeadingLevelChangeDiffOp :: Pandoc.Block -> Int -> Int -> RichTextDiffOp DocTree.LeafTextSpans.DocNode
+    produceHeadingLevelChangeDiffOp headingBlock l1 l2 = UpdateHeadingLevel (HeadingLevelDiff l1 l2) (DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock headingBlock)
 
 diffInlineNodes :: DocTree.GroupedInlines.InlineNode -> DocTree.GroupedInlines.InlineNode -> [EditScript]
 diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffFormattedTokens ((tokenizeFormattedText . toFormattedText) deletedInlineNode) ((tokenizeFormattedText . toFormattedText) addedInlineNode)
