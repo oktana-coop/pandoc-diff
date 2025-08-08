@@ -15,10 +15,10 @@ import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
 import Debug.Trace
 import DocTree.Common (Mark (..), TextSpan (..))
-import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), TreeNode (..), toTree)
+import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineSpan (..), TreeNode (..), toTree)
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
-import RichTextAnalysis (FormattedCharacter (..), FormattedToken (..), textSpanToFormattedText, tokenizeFormattedText)
+import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), textSpanToFormattedText, tokenizeInlineSequence)
 import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
 import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc, nullAttr)
 
@@ -36,7 +36,7 @@ instance Ord ComparePlainText where
   compare :: ComparePlainText -> ComparePlainText -> Ordering
   compare (ComparePlainText a) (ComparePlainText b) = compare (char a) (char b)
 
-newtype CompareTokenText = CompareTokenText FormattedToken
+newtype CompareTokenText = CompareTokenText FormattedTextToken
 
 -- Helper wrapper type used to compare the plain text (ignore formatting) when using the (patience) diff algorithm for words/tokens.
 instance Eq CompareTokenText where
@@ -151,13 +151,13 @@ produceHeadingLevelChangeDiffOp :: Pandoc.Block -> Int -> Int -> RichTextDiffOp 
 produceHeadingLevelChangeDiffOp headingBlock l1 l2 = UpdateHeadingLevel (HeadingLevelDiff l1 l2) (DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock headingBlock)
 
 diffInlineNodes :: DocTree.GroupedInlines.InlineNode -> DocTree.GroupedInlines.InlineNode -> [EditScript]
-diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffFormattedTokens ((tokenizeFormattedText . toFormattedText) deletedInlineNode) ((tokenizeFormattedText . toFormattedText) addedInlineNode)
+diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffFormattedTextTokens ((tokenizeFormattedText . toFormattedText) deletedInlineNode) ((tokenizeFormattedText . toFormattedText) addedInlineNode)
 
 toFormattedText :: DocTree.GroupedInlines.InlineNode -> [FormattedCharacter]
 toFormattedText (DocTree.GroupedInlines.InlineContent textSpans) = concatMap textSpanToFormattedText textSpans
 
-diffFormattedTokens :: [FormattedToken] -> [FormattedToken] -> [RichTextDiffOp FormattedCharacter]
-diffFormattedTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.diff (map CompareTokenText tokens1) (map CompareTokenText tokens2)
+diffFormattedTextTokens :: [FormattedTextToken] -> [FormattedTextToken] -> [RichTextDiffOp FormattedCharacter]
+diffFormattedTextTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.diff (map CompareTokenText tokens1) (map CompareTokenText tokens2)
   where
     resolveTokenDiff :: Patience.Item CompareTokenText -> [RichTextDiffOp FormattedCharacter]
     resolveTokenDiff (Patience.Old (CompareTokenText t)) = map Delete (tokenChars t)
@@ -168,8 +168,8 @@ diffFormattedTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.diff
         -- Fallback char-by-char diff
         else diffFormattedText (tokenChars t1) (tokenChars t2)
 
-    diffFormatting :: FormattedToken -> FormattedToken -> [RichTextDiffOp FormattedCharacter]
-    diffFormatting (FormattedToken _ chars1) (FormattedToken _ chars2) = zipWith compareCharFormatting chars1 chars2
+    diffFormatting :: FormattedTextToken -> FormattedTextToken -> [RichTextDiffOp FormattedCharacter]
+    diffFormatting (FormattedTextToken _ chars1) (FormattedTextToken _ chars2) = zipWith compareCharFormatting chars1 chars2
 
     diffFormattedText :: [FormattedCharacter] -> [FormattedCharacter] -> [RichTextDiffOp FormattedCharacter]
     diffFormattedText formattedText1 formattedText2 =
