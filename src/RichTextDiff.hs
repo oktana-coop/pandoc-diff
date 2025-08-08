@@ -14,11 +14,11 @@ import Data.Tree (Tree, drawTree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
 import Debug.Trace
-import DocTree.Common (Mark (..), TextSpan (..))
-import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineSpan (..), TreeNode (..), toTree)
+import DocTree.Common (Mark (..), NoteId (..), TextSpan (..))
+import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), InlineSpan (..), TreeNode (..), toTree)
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
-import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), textSpanToFormattedText, tokenizeInlineSequence)
+import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken, textSpanToFormattedText, tokenizeInlineSequence)
 import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
 import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc, nullAttr)
 
@@ -49,7 +49,7 @@ instance Ord CompareTokenText where
 
 data EditScript
   = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode))
-  | InlineEditScript (RichTextDiffOp TextSpan)
+  | InlineEditScript (RichTextDiffOp InlineSpan)
   deriving (Show)
 
 traceTree :: (Show a) => Tree a -> Tree a
@@ -151,10 +151,17 @@ produceHeadingLevelChangeDiffOp :: Pandoc.Block -> Int -> Int -> RichTextDiffOp 
 produceHeadingLevelChangeDiffOp headingBlock l1 l2 = UpdateHeadingLevel (HeadingLevelDiff l1 l2) (DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock headingBlock)
 
 diffInlineNodes :: DocTree.GroupedInlines.InlineNode -> DocTree.GroupedInlines.InlineNode -> [EditScript]
-diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffFormattedTextTokens ((tokenizeFormattedText . toFormattedText) deletedInlineNode) ((tokenizeFormattedText . toFormattedText) addedInlineNode)
+diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffInlineTokens ((tokenizeInlineSequence . toInlineAtoms) deletedInlineNode) ((tokenizeInlineSequence . toInlineAtoms) addedInlineNode)
 
-toFormattedText :: DocTree.GroupedInlines.InlineNode -> [FormattedCharacter]
-toFormattedText (DocTree.GroupedInlines.InlineContent textSpans) = concatMap textSpanToFormattedText textSpans
+toInlineAtoms :: DocTree.GroupedInlines.InlineNode -> [InlineAtom]
+toInlineAtoms (DocTree.GroupedInlines.InlineContent inlineSpans) = concatMap inlineSpanToInlineAtoms inlineSpans
+
+inlineSpanToInlineAtoms :: InlineSpan -> [InlineAtom]
+inlineSpanToInlineAtoms (InlineText textSpan) = map CharacterAtom $ textSpanToFormattedText textSpan
+inlineSpanToInlineAtoms (NoteRef (NoteId noteId)) = [NoteRefAtom (NoteId noteId)]
+
+diffInlineTokens :: [InlineToken] -> [InlineToken] -> [RichTextDiffOp InlineAtom]
+diffInlineTokens = undefined
 
 diffFormattedTextTokens :: [FormattedTextToken] -> [FormattedTextToken] -> [RichTextDiffOp FormattedCharacter]
 diffFormattedTextTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.diff (map CompareTokenText tokens1) (map CompareTokenText tokens2)
@@ -192,8 +199,11 @@ diffFormattedTextTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.
         normalizeMarks :: [Mark] -> [Mark]
         normalizeMarks = sort
 
-buildAnnotatedInlineNodeFromDiff :: [RichTextDiffOp FormattedCharacter] -> [EditScript]
-buildAnnotatedInlineNodeFromDiff = (fmap InlineEditScript) . groupSameMarkAndDiffOpChars
+buildAnnotatedInlineNodeFromDiff :: [RichTextDiffOp InlineAtom] -> [EditScript]
+buildAnnotatedInlineNodeFromDiff = (fmap InlineEditScript) . groupSameMarkAndDiffOpAtoms
+
+groupSameMarkAndDiffOpAtoms :: [RichTextDiffOp InlineAtom] -> [RichTextDiffOp InlineSpan]
+groupSameMarkAndDiffOpAtoms = undefined
 
 groupSameMarkAndDiffOpChars :: [RichTextDiffOp FormattedCharacter] -> [RichTextDiffOp TextSpan]
 groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
