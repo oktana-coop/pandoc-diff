@@ -1,11 +1,13 @@
-module RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), textSpanToFormattedText, tokenizeInlineSequence) where
+module RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), textSpanToFormattedText, tokenizeInlineSequence) where
 
 import Data.Char (isSpace)
 import Data.List (unfoldr)
 import qualified Data.Text as T
 import DocTree.Common (Mark (..), NoteId, TextSpan (..))
 
-data InlineAtom = CharacterAtom FormattedCharacter | NoteRefAtom NoteId
+newtype NoteRefAtom = NoteRefAtom NoteId deriving (Show, Eq, Ord)
+
+data InlineAtom = CharacterAtom FormattedCharacter | NoteAtom NoteRefAtom
 
 isCharAtom :: InlineAtom -> Bool
 isCharAtom (CharacterAtom _) = True
@@ -15,7 +17,9 @@ data FormattedCharacter = FormattedCharacter {char :: Char, charMarks :: [Mark]}
 
 data FormattedTextToken = FormattedTextToken {tokenText :: T.Text, tokenChars :: [FormattedCharacter]} deriving (Show, Eq, Ord)
 
-data InlineToken = TextToken FormattedTextToken | NoteRefToken NoteId deriving (Show, Eq, Ord)
+newtype NoteRefToken = NoteRefToken NoteId deriving (Show, Eq, Ord)
+
+data InlineToken = TextToken FormattedTextToken | NoteToken NoteRefToken deriving (Show, Eq, Ord)
 
 textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
 textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
@@ -29,7 +33,7 @@ tokenizeInlineSequence = retokenizeText . splitInNoteRefs
       where
         emitToken :: [InlineAtom] -> Maybe (InlineToken, [InlineAtom])
         emitToken [] = Nothing
-        emitToken (NoteRefAtom noteId : xs) = Just (NoteRefToken noteId, xs)
+        emitToken ((NoteAtom (NoteRefAtom noteId)) : xs) = Just (NoteToken $ NoteRefToken noteId, xs)
         emitToken (charAtom@(CharacterAtom _) : xs) = Just (TextToken $ createFormattedTextToken consecutiveChars, rest)
           where
             (consecutiveCharAtoms, rest) = span isCharAtom (charAtom : xs)

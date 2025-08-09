@@ -18,7 +18,7 @@ import DocTree.Common (Mark (..), NoteId (..), TextSpan (..))
 import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), InlineSpan (..), TreeNode (..), toTree)
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
-import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), textSpanToFormattedText, tokenizeInlineSequence)
+import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), textSpanToFormattedText, tokenizeInlineSequence)
 import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
 import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc, nullAttr)
 
@@ -33,7 +33,7 @@ newtype CompareInlineAtom = CompareInlineAtom InlineAtom
 instance Eq CompareInlineAtom where
   (==) :: CompareInlineAtom -> CompareInlineAtom -> Bool
   (CompareInlineAtom (CharacterAtom (FormattedCharacter c1 _))) == (CompareInlineAtom (CharacterAtom (FormattedCharacter c2 _))) = c1 == c2
-  (CompareInlineAtom (NoteRefAtom (NoteId id1))) == (CompareInlineAtom (NoteRefAtom (NoteId id2))) = id1 == id2
+  (CompareInlineAtom (NoteAtom (NoteRefAtom (NoteId id1)))) == (CompareInlineAtom (NoteAtom (NoteRefAtom (NoteId id2)))) = id1 == id2
   _ == _ = False
 
 -- Helper wrapper type used to compare the plain text (ignore formatting) when using the (patience) diff algorithm for characters.
@@ -65,15 +65,15 @@ newtype CompareInlineToken = CompareInlineToken InlineToken
 -- Compare the note ID when using the patience diff for note ref tokens.
 instance Eq CompareInlineToken where
   (CompareInlineToken (TextToken t1)) == (CompareInlineToken (TextToken t2)) = tokenText t1 == tokenText t2
-  (CompareInlineToken (NoteRefToken id1)) == (CompareInlineToken (NoteRefToken id2)) = id1 == id2
+  (CompareInlineToken (NoteToken id1)) == (CompareInlineToken (NoteToken id2)) = id1 == id2
   _ == _ = False
 
 instance Ord CompareInlineToken where
-  compare (CompareInlineToken (NoteRefToken n1)) (CompareInlineToken (NoteRefToken n2)) = compare n1 n2
+  compare (CompareInlineToken (NoteToken n1)) (CompareInlineToken (NoteToken n2)) = compare n1 n2
   compare (CompareInlineToken (TextToken t1)) (CompareInlineToken (TextToken t2)) = compare (tokenText t1) (tokenText t2)
   -- Define a natural order for different token types. This has to be some type of convention. Here we define that
-  compare (CompareInlineToken (NoteRefToken _)) (CompareInlineToken (TextToken _)) = LT
-  compare (CompareInlineToken (TextToken _)) (CompareInlineToken (NoteRefToken _)) = GT
+  compare (CompareInlineToken (NoteToken _)) (CompareInlineToken (TextToken _)) = LT
+  compare (CompareInlineToken (TextToken _)) (CompareInlineToken (NoteToken _)) = GT
 
 data EditScript
   = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode))
@@ -186,7 +186,7 @@ toInlineAtoms (DocTree.GroupedInlines.InlineContent inlineSpans) = concatMap inl
 
 inlineSpanToInlineAtoms :: InlineSpan -> [InlineAtom]
 inlineSpanToInlineAtoms (InlineText textSpan) = map CharacterAtom $ textSpanToFormattedText textSpan
-inlineSpanToInlineAtoms (NoteRef (NoteId noteId)) = [NoteRefAtom (NoteId noteId)]
+inlineSpanToInlineAtoms (NoteRef (NoteId noteId)) = [NoteAtom $ NoteRefAtom (NoteId noteId)]
 
 diffInlineTokens :: [InlineToken] -> [InlineToken] -> [RichTextDiffOp InlineAtom]
 diffInlineTokens tokens1 tokens2 =
@@ -204,22 +204,17 @@ diffInlineTokens tokens1 tokens2 =
     resolveTokenDiff (Patience.Both (CompareInlineToken (TextToken t1)) (CompareInlineToken (TextToken t2))) =
       map (fmap CharacterAtom) (diffFormattedTextTokens t1 t2)
     -- Note ref deletions/insertions
-    resolveTokenDiff (Patience.Old (CompareInlineToken (NoteRefToken noteId))) =
-      [Delete (NoteRefAtom noteId)]
-    resolveTokenDiff (Patience.New (CompareInlineToken (NoteRefToken noteId))) =
-      [Insert (NoteRefAtom noteId)]
-    resolveTokenDiff
-      ( Patience.Both
-          (CompareInlineToken (NoteRefToken n1))
-          (CompareInlineToken (NoteRefToken n2))
-        )
-        | n1 == n2 = [Copy (NoteRefAtom n1)]
-        | otherwise = [Delete (NoteRefAtom n1), Insert (NoteRefAtom n2)]
+    resolveTokenDiff (Patience.Old (CompareInlineToken (NoteToken (NoteRefToken noteId)))) =
+      [(Delete . NoteAtom . NoteRefAtom) noteId]
+    resolveTokenDiff (Patience.New (CompareInlineToken (NoteToken (NoteRefToken noteId)))) =
+      [(Insert . NoteAtom . NoteRefAtom) noteId]
+    resolveTokenDiff (Patience.Both (CompareInlineToken (NoteToken t1)) (CompareInlineToken (NoteToken t2))) =
+      map (fmap NoteAtom) (diffNoteRefTokens t1 t2)
     -- Mixed-type Both cases (text <-> note ref)
-    resolveTokenDiff (Patience.Both (CompareInlineToken (TextToken t)) (CompareInlineToken (NoteRefToken noteId))) =
-      map (Delete . CharacterAtom) (tokenChars t) ++ [Insert (NoteRefAtom noteId)]
-    resolveTokenDiff (Patience.Both (CompareInlineToken (NoteRefToken noteId)) (CompareInlineToken (TextToken t))) =
-      [Delete (NoteRefAtom noteId)] ++ map (Insert . CharacterAtom) (tokenChars t)
+    resolveTokenDiff (Patience.Both (CompareInlineToken (TextToken t)) (CompareInlineToken (NoteToken (NoteRefToken noteId)))) =
+      map (Delete . CharacterAtom) (tokenChars t) ++ [(Insert . NoteAtom . NoteRefAtom) noteId]
+    resolveTokenDiff (Patience.Both (CompareInlineToken (NoteToken (NoteRefToken noteId))) (CompareInlineToken (TextToken t))) =
+      [(Delete . NoteAtom . NoteRefAtom) noteId] ++ map (Insert . CharacterAtom) (tokenChars t)
 
 diffFormattedTextTokens :: FormattedTextToken -> FormattedTextToken -> [RichTextDiffOp FormattedCharacter]
 diffFormattedTextTokens t1 t2 =
@@ -251,6 +246,12 @@ diffFormattedTextTokens t1 t2 =
 
         normalizeMarks :: [Mark] -> [Mark]
         normalizeMarks = sort
+
+diffNoteRefTokens :: NoteRefToken -> NoteRefToken -> [RichTextDiffOp NoteRefAtom]
+diffNoteRefTokens t1@(NoteRefToken id1) t2@(NoteRefToken id2) =
+  if t1 == t2
+    then [Copy (NoteRefAtom id1)]
+    else [Delete (NoteRefAtom id1), Insert (NoteRefAtom id2)]
 
 buildAnnotatedInlineNodeFromDiff :: [RichTextDiffOp InlineAtom] -> [EditScript]
 buildAnnotatedInlineNodeFromDiff = (fmap InlineEditScript) . groupSameMarkAndDiffOpAtoms
@@ -284,7 +285,7 @@ groupSameMarkAndDiffOpAtoms = foldr groupOrAppendAdjacent []
 
     atomToSpan :: InlineAtom -> InlineSpan
     atomToSpan (CharacterAtom (FormattedCharacter c cMarks)) = InlineText (TextSpan (T.pack [c]) cMarks)
-    atomToSpan (NoteRefAtom noteId) = NoteRef noteId
+    atomToSpan (NoteAtom (NoteRefAtom noteId)) = NoteRef noteId
 
 diffOpSame :: RichTextDiffOp a -> RichTextDiffOp b -> Bool
 diffOpSame wrappedWithDiff1 wrappedWithDiff2 = getDiffOpType wrappedWithDiff1 == getDiffOpType wrappedWithDiff2
