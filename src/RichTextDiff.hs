@@ -18,12 +18,23 @@ import DocTree.Common (Mark (..), NoteId (..), TextSpan (..))
 import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), InlineSpan (..), TreeNode (..), toTree)
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
-import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken, textSpanToFormattedText, tokenizeInlineSequence)
+import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), textSpanToFormattedText, tokenizeInlineSequence)
 import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
 import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc, nullAttr)
 
 instance (Eq a) => Eq (EditTree a) where
   (EditNode a1 edits1) == (EditNode a2 edits2) = a1 == a2 && edits1 == edits2
+
+-- Helper wrapper type used to:
+-- Compare the plain text (ignore formatting) when using the (patience) diff algorithm for characters.
+-- Compare the note ID when using the patience diff for note refs.
+newtype CompareInlineAtom = CompareInlineAtom InlineAtom
+
+instance Eq CompareInlineAtom where
+  (==) :: CompareInlineAtom -> CompareInlineAtom -> Bool
+  (CompareInlineAtom (CharacterAtom (FormattedCharacter c1 _))) == (CompareInlineAtom (CharacterAtom (FormattedCharacter c2 _))) = c1 == c2
+  (CompareInlineAtom (NoteRefAtom (NoteId id1))) == (CompareInlineAtom (NoteRefAtom (NoteId id2))) = id1 == id2
+  _ == _ = False
 
 -- Helper wrapper type used to compare the plain text (ignore formatting) when using the (patience) diff algorithm for characters.
 newtype ComparePlainText = ComparePlainText FormattedCharacter
@@ -46,6 +57,23 @@ instance Eq CompareTokenText where
 instance Ord CompareTokenText where
   compare :: CompareTokenText -> CompareTokenText -> Ordering
   compare (CompareTokenText t1) (CompareTokenText t2) = compare (tokenText t1) (tokenText t2)
+
+newtype CompareInlineToken = CompareInlineToken InlineToken
+
+-- Helper wrapper type used to:
+-- Compare the plain text (ignore formatting) when using the (patience) diff algorithm for words/tokens.
+-- Compare the note ID when using the patience diff for note ref tokens.
+instance Eq CompareInlineToken where
+  (CompareInlineToken (TextToken t1)) == (CompareInlineToken (TextToken t2)) = tokenText t1 == tokenText t2
+  (CompareInlineToken (NoteRefToken id1)) == (CompareInlineToken (NoteRefToken id2)) = id1 == id2
+  _ == _ = False
+
+instance Ord CompareInlineToken where
+  compare (CompareInlineToken (NoteRefToken n1)) (CompareInlineToken (NoteRefToken n2)) = compare n1 n2
+  compare (CompareInlineToken (TextToken t1)) (CompareInlineToken (TextToken t2)) = compare (tokenText t1) (tokenText t2)
+  -- Define a natural order for different token types. This has to be some type of convention. Here we define that
+  compare (CompareInlineToken (NoteRefToken _)) (CompareInlineToken (TextToken _)) = LT
+  compare (CompareInlineToken (TextToken _)) (CompareInlineToken (NoteRefToken _)) = GT
 
 data EditScript
   = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode))
@@ -161,20 +189,45 @@ inlineSpanToInlineAtoms (InlineText textSpan) = map CharacterAtom $ textSpanToFo
 inlineSpanToInlineAtoms (NoteRef (NoteId noteId)) = [NoteRefAtom (NoteId noteId)]
 
 diffInlineTokens :: [InlineToken] -> [InlineToken] -> [RichTextDiffOp InlineAtom]
-diffInlineTokens = undefined
-
-diffFormattedTextTokens :: [FormattedTextToken] -> [FormattedTextToken] -> [RichTextDiffOp FormattedCharacter]
-diffFormattedTextTokens tokens1 tokens2 = concatMap resolveTokenDiff $ Patience.diff (map CompareTokenText tokens1) (map CompareTokenText tokens2)
+diffInlineTokens tokens1 tokens2 =
+  concatMap resolveTokenDiff $
+    Patience.diff
+      (map CompareInlineToken tokens1)
+      (map CompareInlineToken tokens2)
   where
-    resolveTokenDiff :: Patience.Item CompareTokenText -> [RichTextDiffOp FormattedCharacter]
-    resolveTokenDiff (Patience.Old (CompareTokenText t)) = map Delete (tokenChars t)
-    resolveTokenDiff (Patience.New (CompareTokenText t)) = map Insert (tokenChars t)
-    resolveTokenDiff (Patience.Both (CompareTokenText t1) (CompareTokenText t2)) =
-      if tokenText t1 == tokenText t2
-        then diffFormatting t1 t2
-        -- Fallback char-by-char diff
-        else diffFormattedText (tokenChars t1) (tokenChars t2)
+    resolveTokenDiff :: Patience.Item CompareInlineToken -> [RichTextDiffOp InlineAtom]
+    -- Text deletions/insertions
+    resolveTokenDiff (Patience.Old (CompareInlineToken (TextToken t))) =
+      map (Delete . CharacterAtom) (tokenChars t)
+    resolveTokenDiff (Patience.New (CompareInlineToken (TextToken t))) =
+      map (Insert . CharacterAtom) (tokenChars t)
+    resolveTokenDiff (Patience.Both (CompareInlineToken (TextToken t1)) (CompareInlineToken (TextToken t2))) =
+      map (fmap CharacterAtom) (diffFormattedTextTokens t1 t2)
+    -- Note ref deletions/insertions
+    resolveTokenDiff (Patience.Old (CompareInlineToken (NoteRefToken noteId))) =
+      [Delete (NoteRefAtom noteId)]
+    resolveTokenDiff (Patience.New (CompareInlineToken (NoteRefToken noteId))) =
+      [Insert (NoteRefAtom noteId)]
+    resolveTokenDiff
+      ( Patience.Both
+          (CompareInlineToken (NoteRefToken n1))
+          (CompareInlineToken (NoteRefToken n2))
+        )
+        | n1 == n2 = [Copy (NoteRefAtom n1)]
+        | otherwise = [Delete (NoteRefAtom n1), Insert (NoteRefAtom n2)]
+    -- Mixed-type Both cases (text <-> note ref)
+    resolveTokenDiff (Patience.Both (CompareInlineToken (TextToken t)) (CompareInlineToken (NoteRefToken noteId))) =
+      map (Delete . CharacterAtom) (tokenChars t) ++ [Insert (NoteRefAtom noteId)]
+    resolveTokenDiff (Patience.Both (CompareInlineToken (NoteRefToken noteId)) (CompareInlineToken (TextToken t))) =
+      [Delete (NoteRefAtom noteId)] ++ map (Insert . CharacterAtom) (tokenChars t)
 
+diffFormattedTextTokens :: FormattedTextToken -> FormattedTextToken -> [RichTextDiffOp FormattedCharacter]
+diffFormattedTextTokens t1 t2 =
+  if tokenText t1 == tokenText t2
+    then diffFormatting t1 t2
+    -- Fallback char-by-char diff
+    else diffFormattedText (tokenChars t1) (tokenChars t2)
+  where
     diffFormatting :: FormattedTextToken -> FormattedTextToken -> [RichTextDiffOp FormattedCharacter]
     diffFormatting (FormattedTextToken _ chars1) (FormattedTextToken _ chars2) = zipWith compareCharFormatting chars1 chars2
 
@@ -203,39 +256,38 @@ buildAnnotatedInlineNodeFromDiff :: [RichTextDiffOp InlineAtom] -> [EditScript]
 buildAnnotatedInlineNodeFromDiff = (fmap InlineEditScript) . groupSameMarkAndDiffOpAtoms
 
 groupSameMarkAndDiffOpAtoms :: [RichTextDiffOp InlineAtom] -> [RichTextDiffOp InlineSpan]
-groupSameMarkAndDiffOpAtoms = undefined
-
-groupSameMarkAndDiffOpChars :: [RichTextDiffOp FormattedCharacter] -> [RichTextDiffOp TextSpan]
-groupSameMarkAndDiffOpChars = foldr groupOrAppendAdjacent []
+groupSameMarkAndDiffOpAtoms = foldr groupOrAppendAdjacent []
   where
-    -- This is the folding function for grouping the adjacent characters if their marks are the same
-    groupOrAppendAdjacent :: RichTextDiffOp FormattedCharacter -> [RichTextDiffOp TextSpan] -> [RichTextDiffOp TextSpan]
-    -- Keep the diff op the same (just fmap over it) and create a text span with just this character
-    groupOrAppendAdjacent formattedCharWithDiffOp [] = [fmap textSpanFromFormattedChar formattedCharWithDiffOp]
-    -- pattern-match on: the current element (x), the one to its right (firstOfRest) and the rest of the fold
-    groupOrAppendAdjacent formattedCharWithDiffOp (firstOfRest : rest) =
-      if (diffOpSame formattedCharWithDiffOp firstOfRest && characterAndTextSpanMarksSame formattedCharWithDiffOp firstOfRest)
-        -- if the element's marks are the same with the one to its right, we merge them and then add them to the rest of the fold.
-        then (fmap (mergeCharToTextSpan c) firstOfRest) : rest
-        -- if they are not the same we end up with an extra text span in the list for the current element (we prepend it to the existing list for the fold.)
-        else fmap textSpanFromFormattedChar formattedCharWithDiffOp : firstOfRest : rest
+    -- This is the folding function for grouping the adjacent inline atoms if they can be merged
+    groupOrAppendAdjacent :: RichTextDiffOp InlineAtom -> [RichTextDiffOp InlineSpan] -> [RichTextDiffOp InlineSpan]
+    groupOrAppendAdjacent atomWithDiffOp [] = [fmap atomToSpan atomWithDiffOp]
+    groupOrAppendAdjacent (atomWithDiffOp) (firstSpanWithDiffOp : rest)
+      -- If the current atom is a CharacterAtom and the first span is an InlineText with the same marks,
+      -- merge them by prepending the character to the text span, preserving the diff operation.
+      | CharacterAtom fc <- unpackDiffOpValue atomWithDiffOp,
+        InlineText ts <- unpackDiffOpValue firstSpanWithDiffOp,
+        diffOpSame atomWithDiffOp firstSpanWithDiffOp && charMarks fc == marks ts =
+          (fmap (replaceWithMergedSpan (char fc) ts) firstSpanWithDiffOp) : rest
+      | otherwise =
+          fmap atomToSpan atomWithDiffOp : firstSpanWithDiffOp : rest
+
+    -- Helper function that replaces any existing InlineSpan with a new
+    -- InlineText constructed by prepending a Char to an existing TextSpan.
+    replaceWithMergedSpan :: Char -> TextSpan -> InlineSpan -> InlineSpan
+    replaceWithMergedSpan c ts _ = InlineText (mergeCharToTextSpan c ts)
       where
-        c = (char . unpackDiffOpValue) formattedCharWithDiffOp
+        mergeCharToTextSpan :: Char -> TextSpan -> TextSpan
+        mergeCharToTextSpan ch textSpan = TextSpan (mergeCharToText ch (value textSpan)) (marks textSpan)
 
-    textSpanFromFormattedChar :: FormattedCharacter -> TextSpan
-    textSpanFromFormattedChar (FormattedCharacter c cMarks) = TextSpan (T.pack [c]) cMarks
+        mergeCharToText :: Char -> T.Text -> T.Text
+        mergeCharToText ch txt = ch `T.cons` txt
 
-    diffOpSame :: RichTextDiffOp a -> RichTextDiffOp b -> Bool
-    diffOpSame wrappedWithDiff1 wrappedWithDiff2 = getDiffOpType wrappedWithDiff1 == getDiffOpType wrappedWithDiff2
+    atomToSpan :: InlineAtom -> InlineSpan
+    atomToSpan (CharacterAtom (FormattedCharacter c cMarks)) = InlineText (TextSpan (T.pack [c]) cMarks)
+    atomToSpan (NoteRefAtom noteId) = NoteRef noteId
 
-    characterAndTextSpanMarksSame :: RichTextDiffOp FormattedCharacter -> RichTextDiffOp TextSpan -> Bool
-    characterAndTextSpanMarksSame formattedCharWithDiffOp textSpan = (charMarks . unpackDiffOpValue) formattedCharWithDiffOp == (marks $ unpackDiffOpValue textSpan)
-
-    mergeCharToTextSpan :: Char -> TextSpan -> TextSpan
-    mergeCharToTextSpan c textSpan = TextSpan (mergeCharToText c (value textSpan)) (marks textSpan)
-
-    mergeCharToText :: Char -> T.Text -> T.Text
-    mergeCharToText c txt = c `T.cons` txt
+diffOpSame :: RichTextDiffOp a -> RichTextDiffOp b -> Bool
+diffOpSame wrappedWithDiff1 wrappedWithDiff2 = getDiffOpType wrappedWithDiff1 == getDiffOpType wrappedWithDiff2
 
 -- TODO: Use op type and make it parametric
 replaceWithInsOp :: Edit a -> Edit a
