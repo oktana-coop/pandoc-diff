@@ -28,6 +28,7 @@ library
       RichTextDiffOp
   other-modules:
       RichTextAnalysis
+      Utils.Debug
       Paths_pandoc_diff
   hs-source-dirs:
       src
