@@ -18,7 +18,7 @@ import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), In
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
 import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), textSpanToFormattedText, tokenizeInlineSequence)
-import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
+import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), MetaDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
 import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc, nullAttr)
 
 instance (Eq a) => Eq (EditTree a) where
@@ -106,14 +106,23 @@ toPandoc = undefined
 annotatedTreeNodeUnfolder :: EditScript -> (RichTextDiffOp DocTree.LeafTextSpans.DocNode, [EditScript])
 -- Root node
 -- Leave Cpy nodes unchanged. Just return their sub-forest edit scripts as the next seeds to be unfolded.
-annotatedTreeNodeUnfolder (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.Root) subForestEditScripts))) =
-  (Copy DocTree.LeafTextSpans.Root, map TreeEditScript subForestEditScripts)
-annotatedTreeNodeUnfolder (TreeEditScript (Ins (EditNode (DocTree.GroupedInlines.Root) subForestEditScripts))) =
-  (Insert DocTree.LeafTextSpans.Root, map (TreeEditScript . replaceWithInsOp) subForestEditScripts)
-annotatedTreeNodeUnfolder (TreeEditScript (Del (EditNode (DocTree.GroupedInlines.Root) subForestEditScripts))) =
-  (Delete DocTree.LeafTextSpans.Root, map (TreeEditScript . replaceWithDelOp) subForestEditScripts)
-annotatedTreeNodeUnfolder (TreeEditScript (Swp (EditNode (DocTree.GroupedInlines.Root) subForest1EditScripts) (EditNode (DocTree.GroupedInlines.Root) subForest2EditScripts))) =
-  (Copy DocTree.LeafTextSpans.Root, handleSwappedSubForests subForest1EditScripts subForest2EditScripts)
+annotatedTreeNodeUnfolder (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.Root meta) subForestEditScripts))) =
+  (Copy $ DocTree.LeafTextSpans.Root meta, map TreeEditScript subForestEditScripts)
+annotatedTreeNodeUnfolder (TreeEditScript (Ins (EditNode (DocTree.GroupedInlines.Root meta) subForestEditScripts))) =
+  (Insert $ DocTree.LeafTextSpans.Root meta, map (TreeEditScript . replaceWithInsOp) subForestEditScripts)
+annotatedTreeNodeUnfolder (TreeEditScript (Del (EditNode (DocTree.GroupedInlines.Root meta) subForestEditScripts))) =
+  (Delete $ DocTree.LeafTextSpans.Root meta, map (TreeEditScript . replaceWithDelOp) subForestEditScripts)
+annotatedTreeNodeUnfolder (TreeEditScript (Swp (EditNode (DocTree.GroupedInlines.Root meta1) subForest1EditScripts) (EditNode (DocTree.GroupedInlines.Root meta2) subForest2EditScripts))) =
+  (rootNodeWithDiffOp, subForest)
+  where
+    rootNodeWithDiffOp =
+      if meta1 == meta2
+        then Copy $ DocTree.LeafTextSpans.Root meta2
+        else UpdateMeta (MetaDiff meta1 meta2) (DocTree.LeafTextSpans.Root meta2)
+    subForest =
+      if subForest1EditScripts == subForest2EditScripts
+        then fmap TreeEditScript subForest2EditScripts
+        else handleSwappedSubForests subForest1EditScripts subForest2EditScripts
 -- Block nodes
 -- Leave Cpy nodes unchanged. Just return their sub-forest edit scripts as the next seeds to be unfolded.
 annotatedTreeNodeUnfolder (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =
