@@ -3,11 +3,11 @@ module RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), Inlin
 import Data.Char (isSpace)
 import Data.List (unfoldr)
 import qualified Data.Text as T
-import DocTree.Common (Mark (..), NoteId, TextSpan (..))
+import DocTree.Common (Image, Mark (..), NoteId, TextSpan (..))
 
 newtype NoteRefAtom = NoteRefAtom NoteId deriving (Show, Eq, Ord)
 
-data InlineAtom = CharacterAtom FormattedCharacter | NoteAtom NoteRefAtom
+data InlineAtom = CharacterAtom FormattedCharacter | NoteAtom NoteRefAtom | ImageAtom Image
 
 isCharAtom :: InlineAtom -> Bool
 isCharAtom (CharacterAtom _) = True
@@ -19,21 +19,22 @@ data FormattedTextToken = FormattedTextToken {tokenText :: T.Text, tokenChars ::
 
 newtype NoteRefToken = NoteRefToken NoteId deriving (Show, Eq, Ord)
 
-data InlineToken = TextToken FormattedTextToken | NoteToken NoteRefToken deriving (Show, Eq, Ord)
+data InlineToken = TextToken FormattedTextToken | NoteToken NoteRefToken | ImageToken Image deriving (Show, Eq, Ord)
 
 textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
 textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
 
 -- TODO: Explore splitting in note refs **and** spaces with one pass while maintaining clarity.
 tokenizeInlineSequence :: [InlineAtom] -> [InlineToken]
-tokenizeInlineSequence = retokenizeText . splitInNoteRefs
+tokenizeInlineSequence = retokenizeText . splitInNonTextAtoms
   where
-    splitInNoteRefs :: [InlineAtom] -> [InlineToken]
-    splitInNoteRefs = unfoldr emitToken
+    splitInNonTextAtoms :: [InlineAtom] -> [InlineToken]
+    splitInNonTextAtoms = unfoldr emitToken
       where
         emitToken :: [InlineAtom] -> Maybe (InlineToken, [InlineAtom])
         emitToken [] = Nothing
         emitToken ((NoteAtom (NoteRefAtom noteId)) : xs) = Just (NoteToken $ NoteRefToken noteId, xs)
+        emitToken ((ImageAtom img) : xs) = Just (ImageToken img, xs)
         emitToken (charAtom@(CharacterAtom _) : xs) = Just (TextToken $ createFormattedTextToken consecutiveChars, rest)
           where
             (consecutiveCharAtoms, rest) = span isCharAtom (charAtom : xs)

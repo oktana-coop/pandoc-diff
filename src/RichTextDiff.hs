@@ -13,7 +13,7 @@ import qualified Data.Text as T
 import Data.Tree (Tree, unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
-import DocTree.Common (Mark (..), NoteId (..), TextSpan (..))
+import DocTree.Common (Image, Mark (..), NoteId (..), TextSpan (..))
 import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), InlineSpan (..), TreeNode (..), toTree)
 import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
@@ -33,6 +33,7 @@ instance Eq CompareInlineAtom where
   (==) :: CompareInlineAtom -> CompareInlineAtom -> Bool
   (CompareInlineAtom (CharacterAtom (FormattedCharacter c1 _))) == (CompareInlineAtom (CharacterAtom (FormattedCharacter c2 _))) = c1 == c2
   (CompareInlineAtom (NoteAtom (NoteRefAtom (NoteId id1)))) == (CompareInlineAtom (NoteAtom (NoteRefAtom (NoteId id2)))) = id1 == id2
+  (CompareInlineAtom (ImageAtom img1)) == (CompareInlineAtom (ImageAtom img2)) = img1 == img2
   _ == _ = False
 
 -- Helper wrapper type used to compare the plain text (ignore formatting) when using the (patience) diff algorithm for characters.
@@ -65,14 +66,20 @@ newtype CompareInlineToken = CompareInlineToken InlineToken
 instance Eq CompareInlineToken where
   (CompareInlineToken (TextToken t1)) == (CompareInlineToken (TextToken t2)) = tokenText t1 == tokenText t2
   (CompareInlineToken (NoteToken id1)) == (CompareInlineToken (NoteToken id2)) = id1 == id2
+  (CompareInlineToken (ImageToken img1)) == (CompareInlineToken (ImageToken img2)) = img1 == img2
   _ == _ = False
 
 instance Ord CompareInlineToken where
   compare (CompareInlineToken (NoteToken n1)) (CompareInlineToken (NoteToken n2)) = compare n1 n2
   compare (CompareInlineToken (TextToken t1)) (CompareInlineToken (TextToken t2)) = compare (tokenText t1) (tokenText t2)
-  -- Define a natural order for different token types. This has to be some type of convention. Here we define that
+  compare (CompareInlineToken (ImageToken img1)) (CompareInlineToken (ImageToken img2)) = compare img1 img2
+  -- Define a natural order for different token types: NoteToken < ImageToken < TextToken.
+  compare (CompareInlineToken (NoteToken _)) (CompareInlineToken (ImageToken _)) = LT
+  compare (CompareInlineToken (ImageToken _)) (CompareInlineToken (NoteToken _)) = GT
   compare (CompareInlineToken (NoteToken _)) (CompareInlineToken (TextToken _)) = LT
   compare (CompareInlineToken (TextToken _)) (CompareInlineToken (NoteToken _)) = GT
+  compare (CompareInlineToken (ImageToken _)) (CompareInlineToken (TextToken _)) = LT
+  compare (CompareInlineToken (TextToken _)) (CompareInlineToken (ImageToken _)) = GT
 
 data EditScript
   = TreeEditScript (Edit (EditTree DocTree.GroupedInlines.DocNode))
@@ -192,6 +199,7 @@ toInlineAtoms (DocTree.GroupedInlines.InlineContent inlineSpans) = concatMap inl
 inlineSpanToInlineAtoms :: InlineSpan -> [InlineAtom]
 inlineSpanToInlineAtoms (InlineText textSpan) = map CharacterAtom $ textSpanToFormattedText textSpan
 inlineSpanToInlineAtoms (NoteRef (NoteId noteId)) = [NoteAtom $ NoteRefAtom (NoteId noteId)]
+inlineSpanToInlineAtoms (InlineImage img) = [ImageAtom img]
 
 diffInlineTokens :: [InlineToken] -> [InlineToken] -> [RichTextDiffOp InlineAtom]
 diffInlineTokens tokens1 tokens2 =
@@ -215,11 +223,28 @@ diffInlineTokens tokens1 tokens2 =
       [(Insert . NoteAtom . NoteRefAtom) noteId]
     resolveTokenDiff (Patience.Both (CompareInlineToken (NoteToken t1)) (CompareInlineToken (NoteToken t2))) =
       map (fmap NoteAtom) (diffNoteRefTokens t1 t2)
+    -- Image deletions/insertions
+    resolveTokenDiff (Patience.Old (CompareInlineToken (ImageToken img))) =
+      [(Delete . ImageAtom) img]
+    resolveTokenDiff (Patience.New (CompareInlineToken (ImageToken img))) =
+      [(Insert .ImageAtom) img]
+    resolveTokenDiff (Patience.Both (CompareInlineToken (ImageToken img1)) (CompareInlineToken (ImageToken img2))) =
+      map (fmap ImageAtom) (diffImageTokens img1 img2)
     -- Mixed-type Both cases (text <-> note ref)
     resolveTokenDiff (Patience.Both (CompareInlineToken (TextToken t)) (CompareInlineToken (NoteToken (NoteRefToken noteId)))) =
       map (Delete . CharacterAtom) (tokenChars t) ++ [(Insert . NoteAtom . NoteRefAtom) noteId]
     resolveTokenDiff (Patience.Both (CompareInlineToken (NoteToken (NoteRefToken noteId))) (CompareInlineToken (TextToken t))) =
       [(Delete . NoteAtom . NoteRefAtom) noteId] ++ map (Insert . CharacterAtom) (tokenChars t)
+    -- Mixed-type Both cases (text <-> image)
+    resolveTokenDiff (Patience.Both (CompareInlineToken (TextToken t)) (CompareInlineToken (ImageToken img))) =
+      map (Delete . CharacterAtom) (tokenChars t) ++ [(Insert . ImageAtom) img]
+    resolveTokenDiff (Patience.Both (CompareInlineToken (ImageToken img)) (CompareInlineToken (TextToken t))) =
+      [(Delete . ImageAtom) img] ++ map (Insert . CharacterAtom) (tokenChars t)
+    -- Mixed-type Both cases (note ref <-> image)
+    resolveTokenDiff (Patience.Both (CompareInlineToken (NoteToken (NoteRefToken noteId))) (CompareInlineToken (ImageToken img))) =
+      [(Delete . NoteAtom . NoteRefAtom) noteId, (Insert . ImageAtom) img]
+    resolveTokenDiff (Patience.Both (CompareInlineToken (ImageToken img)) (CompareInlineToken (NoteToken (NoteRefToken noteId)))) =
+      [(Delete . ImageAtom) img, (Insert . NoteAtom . NoteRefAtom) noteId]
 
 diffFormattedTextTokens :: FormattedTextToken -> FormattedTextToken -> [RichTextDiffOp FormattedCharacter]
 diffFormattedTextTokens t1 t2 =
@@ -258,6 +283,12 @@ diffNoteRefTokens t1@(NoteRefToken id1) t2@(NoteRefToken id2) =
     then [Copy (NoteRefAtom id1)]
     else [Delete (NoteRefAtom id1), Insert (NoteRefAtom id2)]
 
+diffImageTokens :: Image -> Image -> [RichTextDiffOp Image]
+diffImageTokens img1 img2 =
+  if img1 == img2
+    then [Copy img1]
+    else [Delete img1, Insert img2]
+
 buildAnnotatedInlineNodeFromDiff :: [RichTextDiffOp InlineAtom] -> [EditScript]
 buildAnnotatedInlineNodeFromDiff = (fmap InlineEditScript) . groupSameMarkAndDiffOpAtoms
 
@@ -291,6 +322,7 @@ groupSameMarkAndDiffOpAtoms = foldr groupOrAppendAdjacent []
     atomToSpan :: InlineAtom -> InlineSpan
     atomToSpan (CharacterAtom (FormattedCharacter c cMarks)) = InlineText (TextSpan (T.pack [c]) cMarks)
     atomToSpan (NoteAtom (NoteRefAtom noteId)) = NoteRef noteId
+    atomToSpan (ImageAtom img) = InlineImage img
 
 diffOpSame :: RichTextDiffOp a -> RichTextDiffOp b -> Bool
 diffOpSame wrappedWithDiff1 wrappedWithDiff2 = getDiffOpType wrappedWithDiff1 == getDiffOpType wrappedWithDiff2
