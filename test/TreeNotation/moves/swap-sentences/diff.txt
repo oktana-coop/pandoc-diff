@@ -4,10 +4,14 @@ Copy (Root (Meta {unMeta = fromList []}))
    |
    `- Copy (TreeNode InlineNode)
       |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "Second point. ", marks = []}))))
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "First", marks = []}))))
       |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "First", marks = []}))))
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "Second", marks = []}))))
       |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = " point. Second", marks = []}))))
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " point. ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "Second", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "First", marks = []}))))
       |
       `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " point.", marks = []}))))

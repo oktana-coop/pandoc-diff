@@ -1,7 +1,7 @@
 module RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), textSpanToFormattedText, tokenizeInlineSequence) where
 
-import Data.Char (isSpace)
-import Data.List (unfoldr)
+import Data.Char (isAlphaNum, isSpace)
+import Data.List (groupBy, unfoldr)
 import qualified Data.Text as T
 import DocTree.Common (Image, Mark (..), NoteId, TextSpan (..))
 
@@ -23,6 +23,14 @@ data InlineToken = TextToken FormattedTextToken | NoteToken NoteRefToken | Image
 
 textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
 textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
+
+data CharType = Whitespace | Alphanumeric | Punctuation deriving (Eq)
+
+charType :: Char -> CharType
+charType c
+  | isSpace c = Whitespace
+  | isAlphaNum c = Alphanumeric
+  | otherwise = Punctuation
 
 -- TODO: Explore splitting in note refs **and** spaces with one pass while maintaining clarity.
 tokenizeInlineSequence :: [InlineAtom] -> [InlineToken]
@@ -47,21 +55,30 @@ tokenizeInlineSequence = retokenizeText . splitInNonTextAtoms
         retokenizeTextToken (TextToken textToken) = tokenizeFormattedText $ tokenChars textToken
         retokenizeTextToken otherToken = [otherToken]
 
-        -- TODO: See if we can refactor this part to use library functions like `words`.
         tokenizeFormattedText :: [FormattedCharacter] -> [InlineToken]
-        tokenizeFormattedText = fmap TextToken . map createFormattedTextToken . groupBySpaces
+        tokenizeFormattedText = fmap TextToken . map createFormattedTextToken . splitTokens
 
-        groupBySpaces :: [FormattedCharacter] -> [[FormattedCharacter]]
-        groupBySpaces [] = []
-        groupBySpaces (x : xs) = (x : group) : groupBySpaces rest
+        -- Split a character run into tokens: maximal runs of one character type, with interior
+        -- punctuation re-glued so only leading/trailing punctuation is peeled off.
+        splitTokens :: [FormattedCharacter] -> [[FormattedCharacter]]
+        splitTokens = glueInteriorPunctuation . groupBy sameType
           where
-            (group, rest) = span (isFormattedSpace x) xs
+            sameType :: FormattedCharacter -> FormattedCharacter -> Bool
+            sameType a b = charType (char a) == charType (char b)
 
-        isFormattedSpace :: FormattedCharacter -> FormattedCharacter -> Bool
-        isFormattedSpace fc1 fc2 = isSpaceChar fc1 == isSpaceChar fc2
+            -- Glue a punctuation run flanked by two alphanumeric runs back into one word, so
+            -- interior punctuation stays attached: "peer","-","to","-","peer" -> "peer-to-peer".
+            glueInteriorPunctuation (word : inner : word' : rest)
+              | word `isRunOf` Alphanumeric,
+                inner `isRunOf` Punctuation,
+                word' `isRunOf` Alphanumeric =
+                  glueInteriorPunctuation ((word ++ inner ++ word') : rest)
+            glueInteriorPunctuation (run : rest) = run : glueInteriorPunctuation rest
+            glueInteriorPunctuation [] = []
 
-        isSpaceChar :: FormattedCharacter -> Bool
-        isSpaceChar fc = isSpace (char fc)
+            isRunOf :: [FormattedCharacter] -> CharType -> Bool
+            isRunOf (c : _) t = charType (char c) == t
+            isRunOf [] _ = False
 
     createFormattedTextToken :: [FormattedCharacter] -> FormattedTextToken
     createFormattedTextToken charsGroup = FormattedTextToken (T.pack (map char charsGroup)) charsGroup

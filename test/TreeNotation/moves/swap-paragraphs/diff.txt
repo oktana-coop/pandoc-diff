@@ -10,9 +10,11 @@ Copy (Root (Meta {unMeta = fromList []}))
 |     |
 |     +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
 |     |
-|     +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "first.", marks = []}))))
+|     +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "first", marks = []}))))
 |     |
-|     `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "second.", marks = []}))))
+|     +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "second", marks = []}))))
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))
 |
 `- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
    |
@@ -24,6 +26,8 @@ Copy (Root (Meta {unMeta = fromList []}))
       |
       +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
       |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "second.", marks = []}))))
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "second", marks = []}))))
       |
-      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "first.", marks = []}))))
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "first", marks = []}))))
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))

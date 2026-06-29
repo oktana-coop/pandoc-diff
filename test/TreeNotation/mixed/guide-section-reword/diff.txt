@@ -96,6 +96,12 @@ Copy (Root (Meta {unMeta = fromList []}))
       |
       +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " a default workspace ", marks = []}))))
       |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "for you, downloading any missing pieces along the way.", marks = []}))))
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "for you, downloading any", marks = []}))))
       |
-      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "on your behalf and fetch whatever components are still missing.", marks = []}))))
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "on your behalf and fetch whatever components are still", marks = []}))))
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " missing", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = " pieces along the way", marks = []}))))
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))

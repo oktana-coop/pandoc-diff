@@ -4,8 +4,6 @@ Copy (Root (Meta {unMeta = fromList []}))
    |
    `- Copy (TreeNode InlineNode)
       |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Plug it into ", marks = []}))))
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Plug it into Automerge", marks = []}))))
       |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "Automerge", marks = []}))))
-      |
-      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "Automerge.", marks = []}))))
+      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))

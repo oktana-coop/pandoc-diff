@@ -4,10 +4,10 @@ Copy (Root (Meta {unMeta = fromList []}))
    |
    `- Copy (TreeNode InlineNode)
       |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "She replied ", marks = []}))))
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "She replied \"", marks = []}))))
       |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "\"yes\"", marks = []}))))
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "yes", marks = []}))))
       |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "\"no\"", marks = []}))))
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "no", marks = []}))))
       |
-      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " to the question", marks = []}))))
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "\" to the question", marks = []}))))
