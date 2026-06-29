@@ -1,0 +1,27 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (BulletList []))))
+   |
+   +- Copy (TreeNode (BlockNode (ListItem [])))
+   |  |
+   |  `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+   |     |
+   |     `- Copy (TreeNode InlineNode)
+   |        |
+   |        +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
+   |        |
+   |        +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))
+   |        |
+   |        `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
+   |
+   `- Copy (TreeNode (BlockNode (ListItem [])))
+      |
+      `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+         |
+         `- Copy (TreeNode InlineNode)
+            |
+            +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
+            |
+            +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
+            |
+            `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))

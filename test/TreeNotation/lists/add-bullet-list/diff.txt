@@ -1,0 +1,25 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph", marks = []}))))
+|
+`- Insert (TreeNode (BlockNode (PandocBlock (BulletList []))))
+   |
+   +- Insert (TreeNode (BlockNode (ListItem [])))
+   |  |
+   |  `- Insert (TreeNode (BlockNode (PandocBlock (Plain []))))
+   |     |
+   |     `- Insert (TreeNode InlineNode)
+   |        |
+   |        `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "Item 1", marks = []}))))
+   |
+   `- Insert (TreeNode (BlockNode (ListItem [])))
+      |
+      `- Insert (TreeNode (BlockNode (PandocBlock (Plain []))))
+         |
+         `- Insert (TreeNode InlineNode)
+            |
+            `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "Item 2", marks = []}))))

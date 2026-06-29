@@ -1,0 +1,9 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "see ", marks = []}))))
+      |
+      `- UpdateMarks (MarkDiff [LinkMark (Link ("",[],[]) ("https://a.example",""))] [LinkMark (Link ("",[],[]) ("https://b.example",""))]) (TreeNode (InlineContent (InlineText (TextSpan {value = "docs", marks = [LinkMark (Link ("",[],[]) ("https://b.example",""))]}))))

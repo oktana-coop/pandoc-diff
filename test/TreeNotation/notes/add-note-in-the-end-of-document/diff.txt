@@ -1,0 +1,55 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A ", marks = []}))))
+|     |
+|     +- Copy (TreeNode (InlineContent (NoteRef (NoteId "1"))))
+|     |
+|     +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
+|     |
+|     +- Copy (TreeNode (InlineContent (NoteRef (NoteId "2"))))
+|     |
+|     +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
+|     |
+|     +- Copy (TreeNode (InlineContent (NoteRef (NoteId "3"))))
+|     |
+|     +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " para", marks = []}))))
+|     |
+|     +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
+|     |
+|     `- Insert (TreeNode (InlineContent (NoteRef (NoteId "4"))))
+|
++- Copy (TreeNode (BlockNode (NoteContent (NoteId "1") [])))
+|  |
+|  `- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|     |
+|     `- Copy (TreeNode InlineNode)
+|        |
+|        `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "foo", marks = []}))))
+|
++- Copy (TreeNode (BlockNode (NoteContent (NoteId "2") [])))
+|  |
+|  `- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|     |
+|     `- Copy (TreeNode InlineNode)
+|        |
+|        `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "lorem ipsum", marks = []}))))
+|
++- Copy (TreeNode (BlockNode (NoteContent (NoteId "3") [])))
+|  |
+|  `- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|     |
+|     `- Copy (TreeNode InlineNode)
+|        |
+|        `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "bar", marks = []}))))
+|
+`- Insert (TreeNode (BlockNode (NoteContent (NoteId "4") [])))
+   |
+   `- Insert (TreeNode (BlockNode (PandocBlock (Para []))))
+      |
+      `- Insert (TreeNode InlineNode)
+         |
+         `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "footnote text", marks = []}))))

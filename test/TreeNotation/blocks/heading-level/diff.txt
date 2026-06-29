@@ -1,0 +1,13 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- UpdateHeadingLevel (HeadingLevelDiff 2 3) (TreeNode (BlockNode (PandocBlock (Header 3 ("overview",[],[]) []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Overview", marks = []}))))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Text.", marks = []}))))

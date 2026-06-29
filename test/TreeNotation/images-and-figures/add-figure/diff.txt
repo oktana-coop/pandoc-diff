@@ -1,0 +1,31 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph before.", marks = []}))))
+|
++- Insert (TreeNode (BlockNode (PandocBlock (Figure ("",[],[]) (Caption Nothing []) []))))
+|  |
+|  +- Insert (TreeNode (BlockNode (FigureContent [])))
+|  |  |
+|  |  `- Insert (TreeNode (BlockNode (PandocBlock (Plain []))))
+|  |     |
+|  |     `- Insert (TreeNode InlineNode)
+|  |        |
+|  |        `- Insert (TreeNode (InlineContent (InlineImage (Image ("",[],[]) [Str "A",Space,Str "figure",Space,Str "caption"] ("figure.png","Figure title")))))
+|  |
+|  `- Insert (TreeNode (BlockNode (Caption (Caption Nothing []))))
+|     |
+|     `- Insert (TreeNode (BlockNode (PandocBlock (Plain []))))
+|        |
+|        `- Insert (TreeNode InlineNode)
+|           |
+|           `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "A figure caption", marks = []}))))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph after.", marks = []}))))

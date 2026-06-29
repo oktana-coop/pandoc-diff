@@ -1,0 +1,9 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "\20170\22825\22825\27668\24456\22909", marks = []}))))
+      |
+      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "\20170\22825\22825\27668\19981\22909", marks = []}))))

@@ -1,0 +1,11 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "a ", marks = []}))))
+      |
+      +- UpdateMarks (MarkDiff [] [EmphMark]) (TreeNode (InlineContent (InlineText (TextSpan {value = "quick", marks = [EmphMark]}))))
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " note", marks = []}))))

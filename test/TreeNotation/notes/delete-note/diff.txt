@@ -1,0 +1,25 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph", marks = []}))))
+|     |
+|     +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
+|     |
+|     `- Delete (TreeNode (InlineContent (NoteRef (NoteId "1"))))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Another paragraph", marks = []}))))
+|
+`- Delete (TreeNode (BlockNode (NoteContent (NoteId "1") [])))
+   |
+   `- Delete (TreeNode (BlockNode (PandocBlock (Para []))))
+      |
+      `- Delete (TreeNode InlineNode)
+         |
+         `- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "lorem ipsum", marks = []}))))

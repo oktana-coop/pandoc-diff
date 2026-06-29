@@ -1,0 +1,101 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Header 1 ("getting-started",[],[]) []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Getting Started", marks = []}))))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "This guide walks you through installing the toolkit and ", marks = []}))))
+|     |
+|     +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "running", marks = []}))))
+|     |
+|     +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "building", marks = []}))))
+|     |
+|     +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " your first ", marks = []}))))
+|     |
+|     +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "build", marks = []}))))
+|     |
+|     +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "project", marks = []}))))
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " on a fresh machine.", marks = []}))))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Header 2 ("requirements",[],[]) []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Requirements", marks = []}))))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Before you begin, make sure you have:", marks = []}))))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (OrderedList (1,Decimal,Period) []))))
+|  |
+|  +- Copy (TreeNode (BlockNode (ListItem [])))
+|  |  |
+|  |  `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+|  |     |
+|  |     `- Copy (TreeNode InlineNode)
+|  |        |
+|  |        `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A recent version of the runtime installed.", marks = []}))))
+|  |
+|  +- Copy (TreeNode (BlockNode (ListItem [])))
+|  |  |
+|  |  `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+|  |     |
+|  |     `- Copy (TreeNode InlineNode)
+|  |        |
+|  |        +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "At least ", marks = []}))))
+|  |        |
+|  |        +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
+|  |        |
+|  |        +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "4", marks = []}))))
+|  |        |
+|  |        `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " GB of free disk space for the build cache.", marks = []}))))
+|  |
+|  `- Copy (TreeNode (BlockNode (ListItem [])))
+|     |
+|     `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+|        |
+|        `- Copy (TreeNode InlineNode)
+|           |
+|           `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Network access to download the starter templates.", marks = []}))))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "Once everything is", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "When you are", marks = []}))))
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ready, ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "run", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "running", marks = []}))))
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " the setup command ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "and", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "lets", marks = []}))))
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " the toolkit ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "will configure", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "prepare", marks = []}))))
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " a default workspace ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "for you, downloading any missing pieces along the way.", marks = []}))))
+      |
+      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "on your behalf and fetch whatever components are still missing.", marks = []}))))

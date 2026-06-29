@@ -1,0 +1,13 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "First para.", marks = []}))))
+|
+`- Insert (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Insert (TreeNode InlineNode)
+      |
+      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "Second para.", marks = []}))))

@@ -1,0 +1,17 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "yes", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "yes,", marks = []}))))
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "indeed", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "indeed,", marks = []}))))
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " it works", marks = []}))))

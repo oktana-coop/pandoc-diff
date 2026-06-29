@@ -1,0 +1,31 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph.", marks = []}))))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Figure ("",[],[]) (Caption Nothing []) []))))
+   |
+   +- Copy (TreeNode (BlockNode (FigureContent [])))
+   |  |
+   |  `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+   |     |
+   |     `- Copy (TreeNode InlineNode)
+   |        |
+   |        +- Delete (TreeNode (InlineContent (InlineImage (Image ("",[],[]) [Str "Old",Space,Str "caption"] ("figure.png","Figure title")))))
+   |        |
+   |        `- Insert (TreeNode (InlineContent (InlineImage (Image ("",[],[]) [Str "New",Space,Str "caption"] ("figure.png","Figure title")))))
+   |
+   `- Copy (TreeNode (BlockNode (Caption (Caption Nothing []))))
+      |
+      `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+         |
+         `- Copy (TreeNode InlineNode)
+            |
+            +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "Old", marks = []}))))
+            |
+            +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "New", marks = []}))))
+            |
+            `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " caption", marks = []}))))

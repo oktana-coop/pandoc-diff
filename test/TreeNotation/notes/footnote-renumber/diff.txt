@@ -1,0 +1,53 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Delete (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Delete (TreeNode InlineNode)
+|     |
+|     +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "Text a", marks = []}))))
+|     |
+|     +- Delete (TreeNode (InlineContent (NoteRef (NoteId "1"))))
+|     |
+|     +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = " and b", marks = []}))))
+|     |
+|     +- Delete (TreeNode (InlineContent (NoteRef (NoteId "2"))))
+|     |
+|     `- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Div ("",[],[]) []))))
+|  |
+|  +- Delete (TreeNode (BlockNode (NoteContent (NoteId "1") [])))
+|  |  |
+|  |  `- Delete (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |     |
+|  |     `- Delete (TreeNode InlineNode)
+|  |        |
+|  |        `- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "First note.", marks = []}))))
+|  |
+|  `- Insert (TreeNode (BlockNode (PandocBlock (Para []))))
+|     |
+|     `- Insert (TreeNode InlineNode)
+|        |
+|        +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "Text b", marks = []}))))
+|        |
+|        +- Insert (TreeNode (InlineContent (NoteRef (NoteId "1"))))
+|        |
+|        `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Div ("",[],[]) []))))
+   |
+   +- Delete (TreeNode (BlockNode (NoteContent (NoteId "2") [])))
+   |  |
+   |  `- Delete (TreeNode (BlockNode (PandocBlock (Para []))))
+   |     |
+   |     `- Delete (TreeNode InlineNode)
+   |        |
+   |        `- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "Second note.", marks = []}))))
+   |
+   `- Insert (TreeNode (BlockNode (NoteContent (NoteId "1") [])))
+      |
+      `- Insert (TreeNode (BlockNode (PandocBlock (Para []))))
+         |
+         `- Insert (TreeNode InlineNode)
+            |
+            `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "Second note.", marks = []}))))

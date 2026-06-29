@@ -1,0 +1,13 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "An inline ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineImage (Image ("",[],[]) [Str "alt"] ("old.png","")))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineImage (Image ("",[],[]) [Str "alt"] ("new.png","")))))
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " image.", marks = []}))))

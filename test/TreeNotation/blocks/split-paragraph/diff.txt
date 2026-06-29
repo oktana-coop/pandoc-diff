@@ -1,0 +1,15 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Insert (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Insert (TreeNode InlineNode)
+|     |
+|     `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "First sentence.", marks = []}))))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "First sentence. ", marks = []}))))
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Second sentence.", marks = []}))))

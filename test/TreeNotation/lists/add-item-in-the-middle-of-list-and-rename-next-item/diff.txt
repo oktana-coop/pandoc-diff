@@ -1,0 +1,53 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph", marks = []}))))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (BulletList []))))
+|  |
+|  +- Copy (TreeNode (BlockNode (ListItem [])))
+|  |  |
+|  |  `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+|  |     |
+|  |     `- Copy (TreeNode InlineNode)
+|  |        |
+|  |        `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Item 1", marks = []}))))
+|  |
+|  +- Copy (TreeNode (BlockNode (ListItem [])))
+|  |  |
+|  |  `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+|  |     |
+|  |     `- Copy (TreeNode InlineNode)
+|  |        |
+|  |        `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Item 2", marks = []}))))
+|  |
+|  +- Copy (TreeNode (BlockNode (ListItem [])))
+|  |  |
+|  |  `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+|  |     |
+|  |     `- Copy (TreeNode InlineNode)
+|  |        |
+|  |        +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "Foo", marks = []}))))
+|  |        |
+|  |        `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "Item 3", marks = []}))))
+|  |
+|  `- Copy (TreeNode (BlockNode (ListItem [])))
+|     |
+|     `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+|        |
+|        `- Copy (TreeNode InlineNode)
+|           |
+|           +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
+|           |
+|           +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "3", marks = []}))))
+|           |
+|           `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "4", marks = []}))))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph after the list", marks = []}))))

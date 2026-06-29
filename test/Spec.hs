@@ -1,2 +1,7 @@
+module Main (main) where
+
+import Test.Tasty (defaultMain)
+import qualified TreeNotation.Golden as TreeNotation
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = defaultMain =<< TreeNotation.tests

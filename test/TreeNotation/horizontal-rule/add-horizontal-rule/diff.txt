@@ -1,0 +1,15 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph", marks = []}))))
+|
++- Insert (TreeNode (BlockNode (PandocBlock HorizontalRule)))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Another paragraph", marks = []}))))

@@ -1,0 +1,19 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph before.", marks = []}))))
+|
++- Insert (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Insert (TreeNode InlineNode)
+|     |
+|     `- Insert (TreeNode (InlineContent (InlineImage (Image ("",[],[]) [] ("no-alt.png","")))))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "A paragraph after.", marks = []}))))

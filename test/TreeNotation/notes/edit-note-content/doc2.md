@@ -1,0 +1,5 @@
+A paragraph [^1]
+
+Another paragraph
+
+[^1]: note 1

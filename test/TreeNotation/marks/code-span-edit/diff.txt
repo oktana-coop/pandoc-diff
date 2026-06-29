@@ -1,0 +1,11 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "run ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "getUserById", marks = [CodeMark]}))))
+      |
+      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "getUserId", marks = [CodeMark]}))))
