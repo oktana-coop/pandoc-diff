@@ -4,26 +4,6 @@ Copy (Root (Meta {unMeta = fromList []}))
    |
    `- Copy (TreeNode InlineNode)
       |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "We ", marks = []}))))
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "We decided to abstract away the version control system", marks = []}))))
       |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "decided", marks = []}))))
-      |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "chose", marks = []}))))
-      |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " to ", marks = []}))))
-      |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "abstract away", marks = []}))))
-      |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "hide", marks = []}))))
-      |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " the version ", marks = []}))))
-      |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "control", marks = []}))))
-      |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "layer", marks = []}))))
-      |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
-      |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "system", marks = []}))))
-      |
-      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "entirely", marks = []}))))
+      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "We chose to hide the version layer entirely", marks = []}))))

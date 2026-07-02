@@ -1,4 +1,4 @@
-module RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), textSpanToFormattedText, tokenizeInlineSequence) where
+module RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), isCharAtom, textSpanToFormattedText, tokenizeInlineSequence) where
 
 import Data.Char (isAlphaNum, isSpace)
 import Data.List (groupBy, unfoldr)

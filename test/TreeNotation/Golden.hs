@@ -106,7 +106,10 @@ tests =
         testGroup
           "readability"
           [ goldenCase $ "readability" </> "light-reword",
-            goldenCase $ "readability" </> "heavy-reword"
+            goldenCase $ "readability" </> "medium-reword",
+            goldenCase $ "readability" </> "heavy-reword",
+            goldenCase $ "readability" </> "mostly-reworded",
+            goldenCase $ "readability" </> "reword-around-note"
           ],
         -- Mixed (realistic docs combining several edit types)
         testGroup

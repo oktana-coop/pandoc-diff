@@ -1,0 +1,25 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
++- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+|  |
+|  `- Copy (TreeNode InlineNode)
+|     |
+|     +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "the launch was delayed ", marks = []}))))
+|     |
+|     +- Delete (TreeNode (InlineContent (NoteRef (NoteId "1"))))
+|     |
+|     +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = " because the vendor shipped the wrong parts", marks = []}))))
+|     |
+|     +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "everything slipped by a quarter ", marks = []}))))
+|     |
+|     +- Insert (TreeNode (InlineContent (NoteRef (NoteId "1"))))
+|     |
+|     `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = " because procurement fumbled the order", marks = []}))))
+|
+`- Copy (TreeNode (BlockNode (NoteContent (NoteId "1") [])))
+   |
+   `- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+      |
+      `- Copy (TreeNode InlineNode)
+         |
+         `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "the vendor already apologized", marks = []}))))

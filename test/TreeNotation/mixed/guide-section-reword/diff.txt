@@ -72,36 +72,6 @@ Copy (Root (Meta {unMeta = fromList []}))
    |
    `- Copy (TreeNode InlineNode)
       |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "Once everything is", marks = []}))))
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "Once everything is ready, run the setup command and the toolkit will configure a default workspace for you, downloading any missing pieces along the way.", marks = []}))))
       |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "When you are", marks = []}))))
-      |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ready, ", marks = []}))))
-      |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "run", marks = []}))))
-      |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "running", marks = []}))))
-      |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " the setup command ", marks = []}))))
-      |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "and", marks = []}))))
-      |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "lets", marks = []}))))
-      |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " the toolkit ", marks = []}))))
-      |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "will configure", marks = []}))))
-      |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "prepare", marks = []}))))
-      |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " a default workspace ", marks = []}))))
-      |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "for you, downloading any", marks = []}))))
-      |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "on your behalf and fetch whatever components are still", marks = []}))))
-      |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " missing", marks = []}))))
-      |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = " pieces along the way", marks = []}))))
-      |
-      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))
+      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "When you are ready, running the setup command lets the toolkit prepare a default workspace on your behalf and fetch whatever components are still missing.", marks = []}))))

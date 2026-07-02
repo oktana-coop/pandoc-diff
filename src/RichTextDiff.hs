@@ -19,6 +19,7 @@ import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
 import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), textSpanToFormattedText, tokenizeInlineSequence)
 import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), MetaDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
+import RichTextRewrite (isRewrite)
 import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc, nullAttr)
 
 instance (Eq a) => Eq (EditTree a) where
@@ -191,7 +192,18 @@ produceHeadingLevelChangeDiffOp :: Pandoc.Block -> Int -> Int -> RichTextDiffOp 
 produceHeadingLevelChangeDiffOp headingBlock l1 l2 = UpdateHeadingLevel (HeadingLevelDiff l1 l2) (DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock headingBlock)
 
 diffInlineNodes :: DocTree.GroupedInlines.InlineNode -> DocTree.GroupedInlines.InlineNode -> [EditScript]
-diffInlineNodes deletedInlineNode addedInlineNode = buildAnnotatedInlineNodeFromDiff $ diffInlineTokens ((tokenizeInlineSequence . toInlineAtoms) deletedInlineNode) ((tokenizeInlineSequence . toInlineAtoms) addedInlineNode)
+diffInlineNodes deletedInlineNode addedInlineNode
+  -- A scattered, mostly-replaced inline diff reads as an unhelpful "checkerboard"; show it as a
+  -- whole rewrite instead (the old text struck through, then the new text).
+  | isRewrite inlineDiff = replaceInlineNode deletedInlineNode addedInlineNode
+  | otherwise = buildAnnotatedInlineNodeFromDiff inlineDiff
+  where
+    inlineDiff = diffInlineTokens ((tokenizeInlineSequence . toInlineAtoms) deletedInlineNode) ((tokenizeInlineSequence . toInlineAtoms) addedInlineNode)
+
+-- Render a rewrite: delete every span of the old node, then insert every span of the new node.
+replaceInlineNode :: DocTree.GroupedInlines.InlineNode -> DocTree.GroupedInlines.InlineNode -> [EditScript]
+replaceInlineNode (DocTree.GroupedInlines.InlineContent oldSpans) (DocTree.GroupedInlines.InlineContent newSpans) =
+  map (InlineEditScript . Delete) oldSpans ++ map (InlineEditScript . Insert) newSpans
 
 toInlineAtoms :: DocTree.GroupedInlines.InlineNode -> [InlineAtom]
 toInlineAtoms (DocTree.GroupedInlines.InlineContent inlineSpans) = concatMap inlineSpanToInlineAtoms inlineSpans

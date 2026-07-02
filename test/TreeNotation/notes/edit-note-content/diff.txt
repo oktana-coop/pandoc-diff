@@ -20,12 +20,6 @@ Copy (Root (Meta {unMeta = fromList []}))
       |
       `- Copy (TreeNode InlineNode)
          |
-         +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "footnote", marks = []}))))
+         +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "footnote text", marks = []}))))
          |
-         +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "note", marks = []}))))
-         |
-         +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
-         |
-         +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "text", marks = []}))))
-         |
-         `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))
+         `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "note 1", marks = []}))))

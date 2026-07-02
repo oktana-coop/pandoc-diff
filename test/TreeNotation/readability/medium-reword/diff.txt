@@ -1,0 +1,29 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "the annual ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "meeting", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "session", marks = []}))))
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "starts", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "begins", marks = []}))))
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " at ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "noon", marks = []}))))
+      |
+      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "nine", marks = []}))))
+      |
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " in the grand ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "hall", marks = []}))))
+      |
+      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "room", marks = []}))))

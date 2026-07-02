@@ -1,0 +1,9 @@
+Copy (Root (Meta {unMeta = fromList []}))
+|
+`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+   |
+   `- Copy (TreeNode InlineNode)
+      |
+      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "the annual budget meeting covers revenue across the entire region", marks = []}))))
+      |
+      `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "our monthly budget meeting reviews revenue within a wider zone", marks = []}))))
