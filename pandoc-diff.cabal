@@ -27,8 +27,8 @@ library
       RichTextDiff
       RichTextDiffOp
   other-modules:
+      RewriteDetection
       RichTextAnalysis
-      RichTextRewrite
       Utils.Debug
       Paths_pandoc_diff
   hs-source-dirs:

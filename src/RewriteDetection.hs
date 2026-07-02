@@ -1,4 +1,4 @@
-module RichTextRewrite (isRewrite) where
+module RewriteDetection (isRewrite) where
 
 import Data.List (groupBy)
 import RichTextAnalysis (InlineAtom, isCharAtom)
