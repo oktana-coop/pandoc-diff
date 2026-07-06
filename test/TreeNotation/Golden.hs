@@ -24,13 +24,16 @@ tests =
             goldenCase $ "punctuation" </> "internal-commas",
             goldenCase $ "punctuation" </> "hyphenate",
             goldenCase $ "punctuation" </> "curly-apostrophe",
-            goldenCase $ "punctuation" </> "double-quotes"
+            goldenCase $ "punctuation" </> "double-quotes",
+            goldenCase $ "punctuation" </> "change-quote-style"
           ],
         testGroup
           "whitespace"
           [ goldenCase $ "whitespace" </> "collapse-spaces",
-            -- Known issue: SoftBreak is discarded during conversion, gluing words across the wrap.
-            goldenCase $ "whitespace" </> "soft-wrap-glue"
+            -- A soft break converts to a plain space, so re-wrapping alone yields no diff.
+            goldenCase $ "whitespace" </> "add-soft-break",
+            goldenCase $ "whitespace" </> "add-hard-line-break",
+            goldenCase $ "whitespace" </> "edit-across-hard-line-break"
           ],
         testGroup
           "marks"
