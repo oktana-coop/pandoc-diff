@@ -1,5 +1,6 @@
-module RichTextDiffOp (RichTextDiffOp (..), RichTextDiffOpType (..), MarkDiff (..), HeadingLevelDiff (..), MetaDiff (..), getDiffOpType, unpackDiffOpValue) where
+module RichTextDiffOp (RichTextDiffOp (..), RichTextDiffOpType (..), MarkDiff (..), HeadingLevelDiff (..), MetaDiff (..), getDiffOpType, getDiffOp, unpackDiffOpValue) where
 
+import Data.Functor (void)
 import DocTree.Common (Mark (..))
 import Text.Pandoc.Definition as Pandoc (Meta)
 
@@ -43,3 +44,7 @@ instance Functor RichTextDiffOp where
   fmap f (UpdateMeta metaDiff a) = UpdateMeta metaDiff (f a)
   fmap f (UpdateMarks markDiff a) = UpdateMarks markDiff (f a)
   fmap f (UpdateHeadingLevel levelDiff a) = UpdateHeadingLevel levelDiff (f a)
+
+-- The op with its diff data (mark diff, heading levels) but without the wrapped value.
+getDiffOp :: RichTextDiffOp a -> RichTextDiffOp ()
+getDiffOp = void
