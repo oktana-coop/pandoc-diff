@@ -5,7 +5,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.IO as TIO
 import Data.Tree (Tree, drawTree)
-import RichTextDiff (getAnnotatedTree)
+import RichTextDiff (defaultDiffOptions, getAnnotatedTree)
 import Text.Pandoc (Pandoc, ReaderOptions, def, handleError, readMarkdown, readerExtensions)
 import Text.Pandoc.Class (runIO)
 import Text.Pandoc.Extensions (Extension (Ext_fenced_code_blocks, Ext_footnotes, Ext_smart, Ext_yaml_metadata_block), disableExtension, enableExtension, pandocExtensions)
@@ -17,7 +17,7 @@ readFilesAndProduceTreeDiff input1FilePath input2FilePath = do
   input2Text <- TIO.readFile input2FilePath
   doc1 <- parseMarkdown input1Text
   doc2 <- parseMarkdown input2Text
-  return $ BL.fromStrict (TE.encodeUtf8 (T.pack (renderDiffTree (getAnnotatedTree doc1 doc2))))
+  return $ BL.fromStrict (TE.encodeUtf8 (T.pack (renderDiffTree (getAnnotatedTree defaultDiffOptions doc1 doc2))))
 
 -- drawTree . fmap show — total by construction (no diff-op payload can be omitted).
 renderDiffTree :: (Show a) => Tree a -> String

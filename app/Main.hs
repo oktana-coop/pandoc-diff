@@ -21,4 +21,4 @@ main = do
   doc1 <- handleError eitherDoc1
   eitherDoc2 <- runIO $ readFrom format def (T.pack doc2Str)
   doc2 <- handleError eitherDoc2
-  TIO.putStrLn $ T.pack $ show $ getAnnotatedTree doc1 doc2
+  TIO.putStrLn $ T.pack $ show $ getAnnotatedTree defaultDiffOptions doc1 doc2
