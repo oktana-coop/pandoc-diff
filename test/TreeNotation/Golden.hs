@@ -99,6 +99,12 @@ tests =
           [ goldenCase $ "horizontal-rule" </> "add-horizontal-rule",
             goldenCase $ "horizontal-rule" </> "delete-horizontal-rule"
           ],
+        testGroup
+          "meta"
+          [ goldenCase $ "meta" </> "change-metadata",
+            goldenCase $ "meta" </> "change-body",
+            goldenCase $ "meta" </> "change-metadata-and-body"
+          ],
         -- Cross-cutting
         testGroup
           "moves"
