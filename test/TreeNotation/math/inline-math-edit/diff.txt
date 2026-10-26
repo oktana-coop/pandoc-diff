@@ -4,4 +4,10 @@ Copy (Root (Meta {unMeta = fromList []}))
    |
    `- Copy (TreeNode InlineNode)
       |
-      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "value  here", marks = []}))))
+      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "value ", marks = []}))))
+      |
+      +- Delete (TreeNode (InlineContent (PandocInline (Math InlineMath "x^2"))))
+      |
+      +- Insert (TreeNode (InlineContent (PandocInline (Math InlineMath "x^3"))))
+      |
+      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " here", marks = []}))))

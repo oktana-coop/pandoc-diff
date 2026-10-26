@@ -4,10 +4,11 @@ import Data.Char (isAlphaNum, isSpace)
 import Data.List (groupBy, unfoldr)
 import qualified Data.Text as T
 import DocTree.Common (Image, Mark (..), NoteId, TextSpan (..))
+import qualified Text.Pandoc.Definition as Pandoc (Inline)
 
 newtype NoteRefAtom = NoteRefAtom NoteId deriving (Show, Eq, Ord)
 
-data InlineAtom = CharacterAtom FormattedCharacter | NoteAtom NoteRefAtom | ImageAtom Image
+data InlineAtom = CharacterAtom FormattedCharacter | NoteAtom NoteRefAtom | ImageAtom Image | PandocInlineAtom Pandoc.Inline
 
 isCharAtom :: InlineAtom -> Bool
 isCharAtom (CharacterAtom _) = True
@@ -19,7 +20,7 @@ data FormattedTextToken = FormattedTextToken {tokenText :: T.Text, tokenChars ::
 
 newtype NoteRefToken = NoteRefToken NoteId deriving (Show, Eq, Ord)
 
-data InlineToken = TextToken FormattedTextToken | NoteToken NoteRefToken | ImageToken Image deriving (Show, Eq, Ord)
+data InlineToken = TextToken FormattedTextToken | NoteToken NoteRefToken | ImageToken Image | PandocInlineToken Pandoc.Inline deriving (Show, Eq, Ord)
 
 textSpanToFormattedText :: TextSpan -> [FormattedCharacter]
 textSpanToFormattedText textSpan = map (\c -> FormattedCharacter c (marks textSpan)) $ T.unpack (value textSpan)
@@ -43,6 +44,7 @@ tokenizeInlineSequence = retokenizeText . splitInNonTextAtoms
         emitToken [] = Nothing
         emitToken ((NoteAtom (NoteRefAtom noteId)) : xs) = Just (NoteToken $ NoteRefToken noteId, xs)
         emitToken ((ImageAtom img) : xs) = Just (ImageToken img, xs)
+        emitToken ((PandocInlineAtom inline) : xs) = Just (PandocInlineToken inline, xs)
         emitToken (charAtom@(CharacterAtom _) : xs) = Just (TextToken $ createFormattedTextToken consecutiveChars, rest)
           where
             (consecutiveCharAtoms, rest) = span isCharAtom (charAtom : xs)
