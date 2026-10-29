@@ -16,8 +16,8 @@ import Data.Tree (Tree (..), unfoldTree)
 import Data.TreeDiff (Edit (..))
 import Data.TreeDiff.Tree (EditTree (..), treeDiff)
 import DocTree.Common (Mark (..), NoteId (..), TextSpan (..))
-import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), InlineSpan (..), TreeNode (..), toTree)
-import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
+import DocTree.GroupedInlines (BlockNode (..), DocNode (..), InlineNode (..), InlineSpan (..), RichTextNode (..), toTree)
+import DocTree.LeafTextSpans (DocNode (..), RichTextNode (..))
 import Patience (Item (..), diff)
 import RewriteDetection (isRewrite)
 import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), textSpanToFormattedText, tokenizeInlineSequence)
@@ -143,20 +143,20 @@ annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlin
   (Copy $ DocTree.LeafTextSpans.Root meta, map TreeEditScript subForestEditScripts)
 -- Block nodes
 -- Leave Cpy nodes unchanged. Just return their sub-forest edit scripts as the next seeds to be unfolded.
-annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =
-  (Copy $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode blockNode, map TreeEditScript subForestEditScripts)
-annotatedTreeNodeUnfolder _ (TreeEditScript (Ins (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =
-  (Insert $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode blockNode, map (TreeEditScript . replaceWithInsOp) subForestEditScripts)
-annotatedTreeNodeUnfolder _ (TreeEditScript (Del (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =
-  (Delete $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode blockNode, map (TreeEditScript . replaceWithDelOp) subForestEditScripts)
+annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =
+  (Copy $ DocTree.LeafTextSpans.RichTextNode $ DocTree.LeafTextSpans.BlockNode blockNode, map TreeEditScript subForestEditScripts)
+annotatedTreeNodeUnfolder _ (TreeEditScript (Ins (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =
+  (Insert $ DocTree.LeafTextSpans.RichTextNode $ DocTree.LeafTextSpans.BlockNode blockNode, map (TreeEditScript . replaceWithInsOp) subForestEditScripts)
+annotatedTreeNodeUnfolder _ (TreeEditScript (Del (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =
+  (Delete $ DocTree.LeafTextSpans.RichTextNode $ DocTree.LeafTextSpans.BlockNode blockNode, map (TreeEditScript . replaceWithDelOp) subForestEditScripts)
 -- In this case of swapping headings, check if the only thing that's changed is the heading level, in which case we return the respective diff type.
 -- Otherwise, it's regular block swap handling.
 annotatedTreeNodeUnfolder
   _
   ( TreeEditScript
       ( Swp
-          block1@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode (PandocBlock heading1@(Pandoc.Header level1 _ _)))) subForest1EditScripts)
-          block2@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode (PandocBlock heading2@(Pandoc.Header level2 _ _)))) subForest2EditScripts)
+          block1@(EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.BlockNode (PandocBlock heading1@(Pandoc.Header level1 _ _)))) subForest1EditScripts)
+          block2@(EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.BlockNode (PandocBlock heading2@(Pandoc.Header level2 _ _)))) subForest2EditScripts)
         )
     ) =
     if onlyHeadingLevelsDiffer heading1 heading2 && subForest1EditScripts == subForest2EditScripts
@@ -167,38 +167,38 @@ annotatedTreeNodeUnfolder
   _
   ( TreeEditScript
       ( Swp
-          block1@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode _)) _)
-          block2@(EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.BlockNode _)) _)
+          block1@(EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.BlockNode _)) _)
+          block2@(EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.BlockNode _)) _)
         )
     ) = handleSwappedBlocks block1 block2
 -- Inline nodes
 -- We ignore the subforest edit scripts tree diffing gave us here. Any edit scripts may occur by inline diffing, which is handled by a different algorithm.
-annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.InlineNode (DocTree.GroupedInlines.InlineContent textSpans))) _))) =
-  (Copy $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.InlineNode, map (InlineEditScript . Copy) textSpans)
-annotatedTreeNodeUnfolder _ (TreeEditScript (Ins (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.InlineNode (DocTree.GroupedInlines.InlineContent textSpans))) _))) =
-  (Insert $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.InlineNode, map (InlineEditScript . Insert) textSpans)
-annotatedTreeNodeUnfolder _ (TreeEditScript (Del (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.InlineNode (DocTree.GroupedInlines.InlineContent textSpans))) _))) =
-  (Delete $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.InlineNode, map (InlineEditScript . Delete) textSpans)
+annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.InlineNode (DocTree.GroupedInlines.InlineContent textSpans))) _))) =
+  (Copy $ DocTree.LeafTextSpans.RichTextNode $ DocTree.LeafTextSpans.InlineNode, map (InlineEditScript . Copy) textSpans)
+annotatedTreeNodeUnfolder _ (TreeEditScript (Ins (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.InlineNode (DocTree.GroupedInlines.InlineContent textSpans))) _))) =
+  (Insert $ DocTree.LeafTextSpans.RichTextNode $ DocTree.LeafTextSpans.InlineNode, map (InlineEditScript . Insert) textSpans)
+annotatedTreeNodeUnfolder _ (TreeEditScript (Del (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.InlineNode (DocTree.GroupedInlines.InlineContent textSpans))) _))) =
+  (Delete $ DocTree.LeafTextSpans.RichTextNode $ DocTree.LeafTextSpans.InlineNode, map (InlineEditScript . Delete) textSpans)
 -- In the case of swapping inlines, we call `diffInlineNodes` to handle inline node diffing with an algorithm that diffs inline text (not trees).
-annotatedTreeNodeUnfolder options (TreeEditScript (Swp (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.InlineNode inlineNode1)) _) (EditNode (DocTree.GroupedInlines.TreeNode (DocTree.GroupedInlines.InlineNode inlineNode2)) _))) =
-  (Copy $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.InlineNode, diffInlineNodes options inlineNode1 inlineNode2)
+annotatedTreeNodeUnfolder options (TreeEditScript (Swp (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.InlineNode inlineNode1)) _) (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.InlineNode inlineNode2)) _))) =
+  (Copy $ DocTree.LeafTextSpans.RichTextNode $ DocTree.LeafTextSpans.InlineNode, diffInlineNodes options inlineNode1 inlineNode2)
 -- Wrap the diffed text span with the tree node constructors
 annotatedTreeNodeUnfolder _ (InlineEditScript inlineEditScript) =
-  (fmap (DocTree.LeafTextSpans.TreeNode . DocTree.LeafTextSpans.InlineContent) inlineEditScript, [])
+  (fmap (DocTree.LeafTextSpans.RichTextNode . DocTree.LeafTextSpans.InlineContent) inlineEditScript, [])
 -- Other cases (taking different types of nodes as input from the edit script)
 -- TODO: Here we must return an error because we are in cases where the edit script is wrong (e.g. trying to replace the Root node with another block or inline node).
 annotatedTreeNodeUnfolder _ _ = undefined
 
 -- To handle swapped blocks, add a wrapper div container to the tree and create del+ins operations for the swapped blocks respectively.
 handleSwappedBlocks :: EditTree DocTree.GroupedInlines.DocNode -> EditTree DocTree.GroupedInlines.DocNode -> (RichTextDiffOp DocTree.LeafTextSpans.DocNode, [EditScript])
-handleSwappedBlocks block1 block2 = (Copy $ DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock $ Pandoc.Div nullAttr [], [(TreeEditScript . Del) block1, (TreeEditScript . Ins) block2])
+handleSwappedBlocks block1 block2 = (Copy $ DocTree.LeafTextSpans.RichTextNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock $ Pandoc.Div nullAttr [], [(TreeEditScript . Del) block1, (TreeEditScript . Ins) block2])
 
 onlyHeadingLevelsDiffer :: Pandoc.Block -> Pandoc.Block -> Bool
 onlyHeadingLevelsDiffer (Pandoc.Header level1 attrs1 inlines1) (Pandoc.Header level2 attrs2 inlines2) = level1 /= level2 && attrs1 == attrs2 && inlines1 == inlines2
 onlyHeadingLevelsDiffer _ _ = False
 
 produceHeadingLevelChangeDiffOp :: Pandoc.Block -> Int -> Int -> RichTextDiffOp DocTree.LeafTextSpans.DocNode
-produceHeadingLevelChangeDiffOp headingBlock l1 l2 = UpdateHeadingLevel (HeadingLevelDiff l1 l2) (DocTree.LeafTextSpans.TreeNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock headingBlock)
+produceHeadingLevelChangeDiffOp headingBlock l1 l2 = UpdateHeadingLevel (HeadingLevelDiff l1 l2) (DocTree.LeafTextSpans.RichTextNode $ DocTree.LeafTextSpans.BlockNode $ PandocBlock headingBlock)
 
 diffInlineNodes :: DiffOptions -> DocTree.GroupedInlines.InlineNode -> DocTree.GroupedInlines.InlineNode -> [EditScript]
 diffInlineNodes options deletedInlineNode addedInlineNode

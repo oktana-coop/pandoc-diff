@@ -1,13 +1,13 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (TreeNode (BlockNode (PandocBlock (Para []))))
+`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
    |
-   `- Copy (TreeNode InlineNode)
+   `- Copy (RichTextNode InlineNode)
       |
-      +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "set ", marks = []}))))
+      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "set ", marks = []}))))
       |
-      +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "30s", marks = []}))))
+      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "30s", marks = []}))))
       |
-      +- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "30ms", marks = []}))))
+      +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "30ms", marks = []}))))
       |
-      `- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = " timeout", marks = []}))))
+      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " timeout", marks = []}))))

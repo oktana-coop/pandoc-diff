@@ -1,27 +1,27 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (TreeNode (BlockNode (PandocBlock (BulletList []))))
+`- Copy (RichTextNode (BlockNode (PandocBlock (BulletList []))))
    |
-   +- Copy (TreeNode (BlockNode (ListItem [])))
+   +- Copy (RichTextNode (BlockNode (ListItem [])))
    |  |
-   |  `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+   |  `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
    |     |
-   |     `- Copy (TreeNode InlineNode)
+   |     `- Copy (RichTextNode InlineNode)
    |        |
-   |        +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
+   |        +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
    |        |
-   |        +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))
+   |        +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))
    |        |
-   |        `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
+   |        `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
    |
-   `- Copy (TreeNode (BlockNode (ListItem [])))
+   `- Copy (RichTextNode (BlockNode (ListItem [])))
       |
-      `- Copy (TreeNode (BlockNode (PandocBlock (Plain []))))
+      `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
          |
-         `- Copy (TreeNode InlineNode)
+         `- Copy (RichTextNode InlineNode)
             |
-            +- Copy (TreeNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
+            +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
             |
-            +- Delete (TreeNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
+            +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
             |
-            `- Insert (TreeNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))
+            `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))
