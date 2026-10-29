@@ -21,7 +21,7 @@ import DocTree.LeafTextSpans (DocNode (..), TreeNode (..))
 import Patience (Item (..), diff)
 import RewriteDetection (isRewrite)
 import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), textSpanToFormattedText, tokenizeInlineSequence)
-import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), MetaDiff (..), RichTextDiffOp (..), getDiffOpType, unpackDiffOpValue)
+import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), MetaDiff (..), RichTextDiffOp (..), getDiffOp, unpackDiffOpValue)
 import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc (..), nullAttr, nullMeta)
 
 instance (Eq a) => Eq (EditTree a) where
@@ -369,7 +369,7 @@ groupSameMarkAndDiffOpAtoms = foldr groupOrAppendAdjacent []
     atomToSpan (PandocInlineAtom inline) = PandocInline inline
 
 diffOpSame :: RichTextDiffOp a -> RichTextDiffOp b -> Bool
-diffOpSame wrappedWithDiff1 wrappedWithDiff2 = getDiffOpType wrappedWithDiff1 == getDiffOpType wrappedWithDiff2
+diffOpSame wrappedWithDiff1 wrappedWithDiff2 = getDiffOp wrappedWithDiff1 == getDiffOp wrappedWithDiff2
 
 -- TODO: Use op type and make it parametric
 replaceWithInsOp :: Edit a -> Edit a

@@ -39,6 +39,7 @@ tests =
           "marks"
           [ goldenCase $ "marks" </> "add-emphasis",
             goldenCase $ "marks" </> "remove-strong",
+            goldenCase $ "marks" </> "remove-adjacent-marks",
             goldenCase $ "marks" </> "link-target",
             goldenCase $ "marks" </> "mark-plus-edit",
             -- Known issue: Strikeout is discarded during conversion.
