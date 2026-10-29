@@ -1,25 +1,27 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Copy (RichTextNode InlineNode)
-|     |
-|     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "the launch was delayed ", marks = []}))))
-|     |
-|     +- Delete (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
-|     |
-|     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = " because the vendor shipped the wrong parts", marks = []}))))
-|     |
-|     +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "everything slipped by a quarter ", marks = []}))))
-|     |
-|     +- Insert (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
-|     |
-|     `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = " because procurement fumbled the order", marks = []}))))
-|
-`- Copy (RichTextNode (BlockNode (NoteContent (NoteId "1") [])))
+`- Copy Body
    |
-   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   +- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  |
+   |  `- Copy (RichTextNode InlineNode)
+   |     |
+   |     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "the launch was delayed ", marks = []}))))
+   |     |
+   |     +- Delete (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
+   |     |
+   |     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = " because the vendor shipped the wrong parts", marks = []}))))
+   |     |
+   |     +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "everything slipped by a quarter ", marks = []}))))
+   |     |
+   |     +- Insert (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
+   |     |
+   |     `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = " because procurement fumbled the order", marks = []}))))
+   |
+   `- Copy (RichTextNode (BlockNode (NoteContent (NoteId "1") [])))
       |
-      `- Copy (RichTextNode InlineNode)
+      `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
          |
-         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "the vendor already apologized", marks = []}))))
+         `- Copy (RichTextNode InlineNode)
+            |
+            `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "the vendor already apologized", marks = []}))))

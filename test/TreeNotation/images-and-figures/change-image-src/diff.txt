@@ -1,13 +1,15 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "An inline ", marks = []}))))
-      |
-      +- Delete (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "alt"] ("old.png","")))))
-      |
-      +- Insert (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "alt"] ("new.png","")))))
-      |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " image.", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "An inline ", marks = []}))))
+         |
+         +- Delete (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "alt"] ("old.png","")))))
+         |
+         +- Insert (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "alt"] ("new.png","")))))
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " image.", marks = []}))))

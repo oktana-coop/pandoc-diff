@@ -1,53 +1,55 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Delete (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Delete (RichTextNode InlineNode)
-|     |
-|     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Text a", marks = []}))))
-|     |
-|     +- Delete (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
-|     |
-|     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = " and b", marks = []}))))
-|     |
-|     +- Delete (RichTextNode (InlineContent (NoteRef (NoteId "2"))))
-|     |
-|     `- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))
-|
-+- Copy (RichTextNode (BlockNode (PandocBlock (Div ("",[],[]) []))))
-|  |
-|  +- Delete (RichTextNode (BlockNode (NoteContent (NoteId "1") [])))
-|  |  |
-|  |  `- Delete (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |     |
-|  |     `- Delete (RichTextNode InlineNode)
-|  |        |
-|  |        `- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "First note.", marks = []}))))
-|  |
-|  `- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
-|     |
-|     `- Insert (RichTextNode InlineNode)
-|        |
-|        +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Text b", marks = []}))))
-|        |
-|        +- Insert (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
-|        |
-|        `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))
-|
-`- Copy (RichTextNode (BlockNode (PandocBlock (Div ("",[],[]) []))))
+`- Copy Body
    |
-   +- Delete (RichTextNode (BlockNode (NoteContent (NoteId "2") [])))
+   +- Delete (RichTextNode (BlockNode (PandocBlock (Para []))))
    |  |
-   |  `- Delete (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  `- Delete (RichTextNode InlineNode)
    |     |
-   |     `- Delete (RichTextNode InlineNode)
-   |        |
-   |        `- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second note.", marks = []}))))
+   |     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Text a", marks = []}))))
+   |     |
+   |     +- Delete (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
+   |     |
+   |     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = " and b", marks = []}))))
+   |     |
+   |     +- Delete (RichTextNode (InlineContent (NoteRef (NoteId "2"))))
+   |     |
+   |     `- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))
    |
-   `- Insert (RichTextNode (BlockNode (NoteContent (NoteId "1") [])))
+   +- Copy (RichTextNode (BlockNode (PandocBlock (Div ("",[],[]) []))))
+   |  |
+   |  +- Delete (RichTextNode (BlockNode (NoteContent (NoteId "1") [])))
+   |  |  |
+   |  |  `- Delete (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  |     |
+   |  |     `- Delete (RichTextNode InlineNode)
+   |  |        |
+   |  |        `- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "First note.", marks = []}))))
+   |  |
+   |  `- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |     |
+   |     `- Insert (RichTextNode InlineNode)
+   |        |
+   |        +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Text b", marks = []}))))
+   |        |
+   |        +- Insert (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
+   |        |
+   |        `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = ".", marks = []}))))
+   |
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Div ("",[],[]) []))))
       |
-      `- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
+      +- Delete (RichTextNode (BlockNode (NoteContent (NoteId "2") [])))
+      |  |
+      |  `- Delete (RichTextNode (BlockNode (PandocBlock (Para []))))
+      |     |
+      |     `- Delete (RichTextNode InlineNode)
+      |        |
+      |        `- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second note.", marks = []}))))
+      |
+      `- Insert (RichTextNode (BlockNode (NoteContent (NoteId "1") [])))
          |
-         `- Insert (RichTextNode InlineNode)
+         `- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
             |
-            `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second note.", marks = []}))))
+            `- Insert (RichTextNode InlineNode)
+               |
+               `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second note.", marks = []}))))

@@ -1,11 +1,13 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "run ", marks = []}))))
-      |
-      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "getUserById", marks = [CodeMark]}))))
-      |
-      `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "getUserId", marks = [CodeMark]}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "run ", marks = []}))))
+         |
+         +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "getUserById", marks = [CodeMark]}))))
+         |
+         `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "getUserId", marks = [CodeMark]}))))

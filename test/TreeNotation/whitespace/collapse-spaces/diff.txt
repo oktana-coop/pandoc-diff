@@ -1,7 +1,9 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "one two", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "one two", marks = []}))))

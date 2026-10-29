@@ -1,31 +1,33 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Copy (RichTextNode InlineNode)
-|     |
-|     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph.", marks = []}))))
-|
-`- Copy (RichTextNode (BlockNode (PandocBlock (Figure ("",[],[]) (Caption Nothing []) []))))
+`- Copy Body
    |
-   +- Copy (RichTextNode (BlockNode (FigureContent [])))
+   +- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
    |  |
-   |  `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
+   |  `- Copy (RichTextNode InlineNode)
    |     |
-   |     `- Copy (RichTextNode InlineNode)
-   |        |
-   |        +- Delete (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "Old",Space,Str "caption"] ("figure.png","Figure title")))))
-   |        |
-   |        `- Insert (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "New",Space,Str "caption"] ("figure.png","Figure title")))))
+   |     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph.", marks = []}))))
    |
-   `- Copy (RichTextNode (BlockNode (Caption (Caption Nothing []))))
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Figure ("",[],[]) (Caption Nothing []) []))))
       |
-      `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
+      +- Copy (RichTextNode (BlockNode (FigureContent [])))
+      |  |
+      |  `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
+      |     |
+      |     `- Copy (RichTextNode InlineNode)
+      |        |
+      |        +- Delete (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "Old",Space,Str "caption"] ("figure.png","Figure title")))))
+      |        |
+      |        `- Insert (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "New",Space,Str "caption"] ("figure.png","Figure title")))))
+      |
+      `- Copy (RichTextNode (BlockNode (Caption (Caption Nothing []))))
          |
-         `- Copy (RichTextNode InlineNode)
+         `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
             |
-            +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Old", marks = []}))))
-            |
-            +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "New", marks = []}))))
-            |
-            `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " caption", marks = []}))))
+            `- Copy (RichTextNode InlineNode)
+               |
+               +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Old", marks = []}))))
+               |
+               +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "New", marks = []}))))
+               |
+               `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " caption", marks = []}))))

@@ -1,11 +1,13 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "due in ", marks = []}))))
-      |
-      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "2024", marks = []}))))
-      |
-      `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "2025", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "due in ", marks = []}))))
+         |
+         +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "2024", marks = []}))))
+         |
+         `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "2025", marks = []}))))

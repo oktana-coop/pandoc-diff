@@ -1,15 +1,17 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Copy (RichTextNode InlineNode)
-|     |
-|     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph", marks = []}))))
-|
-+- Delete (RichTextNode (BlockNode (PandocBlock HorizontalRule)))
-|
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   +- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  |
+   |  `- Copy (RichTextNode InlineNode)
+   |     |
+   |     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph", marks = []}))))
+   |
+   +- Delete (RichTextNode (BlockNode (PandocBlock HorizontalRule)))
+   |
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Another paragraph", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Another paragraph", marks = []}))))

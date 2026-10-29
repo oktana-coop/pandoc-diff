@@ -1,17 +1,19 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "First", marks = []}))))
-      |
-      +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second", marks = []}))))
-      |
-      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " point. ", marks = []}))))
-      |
-      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second", marks = []}))))
-      |
-      +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "First", marks = []}))))
-      |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " point.", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "First", marks = []}))))
+         |
+         +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second", marks = []}))))
+         |
+         +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " point. ", marks = []}))))
+         |
+         +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second", marks = []}))))
+         |
+         +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "First", marks = []}))))
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " point.", marks = []}))))

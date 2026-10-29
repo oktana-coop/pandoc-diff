@@ -1,25 +1,27 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Copy (RichTextNode InlineNode)
-|     |
-|     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph", marks = []}))))
-|
-`- Insert (RichTextNode (BlockNode (PandocBlock (BulletList []))))
+`- Copy Body
    |
-   +- Insert (RichTextNode (BlockNode (ListItem [])))
+   +- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
    |  |
-   |  `- Insert (RichTextNode (BlockNode (PandocBlock (Plain []))))
+   |  `- Copy (RichTextNode InlineNode)
    |     |
-   |     `- Insert (RichTextNode InlineNode)
-   |        |
-   |        `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item 1", marks = []}))))
+   |     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph", marks = []}))))
    |
-   `- Insert (RichTextNode (BlockNode (ListItem [])))
+   `- Insert (RichTextNode (BlockNode (PandocBlock (BulletList []))))
       |
-      `- Insert (RichTextNode (BlockNode (PandocBlock (Plain []))))
+      +- Insert (RichTextNode (BlockNode (ListItem [])))
+      |  |
+      |  `- Insert (RichTextNode (BlockNode (PandocBlock (Plain []))))
+      |     |
+      |     `- Insert (RichTextNode InlineNode)
+      |        |
+      |        `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item 1", marks = []}))))
+      |
+      `- Insert (RichTextNode (BlockNode (ListItem [])))
          |
-         `- Insert (RichTextNode InlineNode)
+         `- Insert (RichTextNode (BlockNode (PandocBlock (Plain []))))
             |
-            `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item 2", marks = []}))))
+            `- Insert (RichTextNode InlineNode)
+               |
+               `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item 2", marks = []}))))

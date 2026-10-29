@@ -1,17 +1,19 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Copy (RichTextNode InlineNode)
-|     |
-|     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Alpha first.", marks = []}))))
-|     |
-|     `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Beta second.", marks = []}))))
-|
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   +- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  |
+   |  `- Copy (RichTextNode InlineNode)
+   |     |
+   |     +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Alpha first.", marks = []}))))
+   |     |
+   |     `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Beta second.", marks = []}))))
+   |
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Beta second.", marks = []}))))
-      |
-      `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Alpha first.", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "Beta second.", marks = []}))))
+         |
+         `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "Alpha first.", marks = []}))))

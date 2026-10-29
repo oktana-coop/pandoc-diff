@@ -1,13 +1,15 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "We chose to ", marks = []}))))
-      |
-      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "hide", marks = []}))))
-      |
-      +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "mask", marks = []}))))
-      |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " the system", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "We chose to ", marks = []}))))
+         |
+         +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "hide", marks = []}))))
+         |
+         +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "mask", marks = []}))))
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " the system", marks = []}))))

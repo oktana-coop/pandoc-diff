@@ -1,27 +1,29 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (BulletList []))))
+`- Copy Body
    |
-   +- Copy (RichTextNode (BlockNode (ListItem [])))
-   |  |
-   |  `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
-   |     |
-   |     `- Copy (RichTextNode InlineNode)
-   |        |
-   |        +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
-   |        |
-   |        +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))
-   |        |
-   |        `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
-   |
-   `- Copy (RichTextNode (BlockNode (ListItem [])))
+   `- Copy (RichTextNode (BlockNode (PandocBlock (BulletList []))))
       |
-      `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
+      +- Copy (RichTextNode (BlockNode (ListItem [])))
+      |  |
+      |  `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
+      |     |
+      |     `- Copy (RichTextNode InlineNode)
+      |        |
+      |        +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
+      |        |
+      |        +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))
+      |        |
+      |        `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
+      |
+      `- Copy (RichTextNode (BlockNode (ListItem [])))
          |
-         `- Copy (RichTextNode InlineNode)
+         `- Copy (RichTextNode (BlockNode (PandocBlock (Plain []))))
             |
-            +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
-            |
-            +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
-            |
-            `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))
+            `- Copy (RichTextNode InlineNode)
+               |
+               +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Item ", marks = []}))))
+               |
+               +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "2", marks = []}))))
+               |
+               `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "1", marks = []}))))

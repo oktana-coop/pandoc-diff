@@ -1,13 +1,15 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "She replied \"", marks = []}))))
-      |
-      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "yes", marks = []}))))
-      |
-      +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "no", marks = []}))))
-      |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "\" to the question", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "She replied \"", marks = []}))))
+         |
+         +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "yes", marks = []}))))
+         |
+         +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "no", marks = []}))))
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "\" to the question", marks = []}))))

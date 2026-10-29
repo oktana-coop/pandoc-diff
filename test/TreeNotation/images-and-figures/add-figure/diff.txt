@@ -1,31 +1,33 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Copy (RichTextNode InlineNode)
-|     |
-|     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph before.", marks = []}))))
-|
-+- Insert (RichTextNode (BlockNode (PandocBlock (Figure ("",[],[]) (Caption Nothing []) []))))
-|  |
-|  +- Insert (RichTextNode (BlockNode (FigureContent [])))
-|  |  |
-|  |  `- Insert (RichTextNode (BlockNode (PandocBlock (Plain []))))
-|  |     |
-|  |     `- Insert (RichTextNode InlineNode)
-|  |        |
-|  |        `- Insert (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "A",Space,Str "figure",Space,Str "caption"] ("figure.png","Figure title")))))
-|  |
-|  `- Insert (RichTextNode (BlockNode (Caption (Caption Nothing []))))
-|     |
-|     `- Insert (RichTextNode (BlockNode (PandocBlock (Plain []))))
-|        |
-|        `- Insert (RichTextNode InlineNode)
-|           |
-|           `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "A figure caption", marks = []}))))
-|
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   +- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  |
+   |  `- Copy (RichTextNode InlineNode)
+   |     |
+   |     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph before.", marks = []}))))
+   |
+   +- Insert (RichTextNode (BlockNode (PandocBlock (Figure ("",[],[]) (Caption Nothing []) []))))
+   |  |
+   |  +- Insert (RichTextNode (BlockNode (FigureContent [])))
+   |  |  |
+   |  |  `- Insert (RichTextNode (BlockNode (PandocBlock (Plain []))))
+   |  |     |
+   |  |     `- Insert (RichTextNode InlineNode)
+   |  |        |
+   |  |        `- Insert (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [Str "A",Space,Str "figure",Space,Str "caption"] ("figure.png","Figure title")))))
+   |  |
+   |  `- Insert (RichTextNode (BlockNode (Caption (Caption Nothing []))))
+   |     |
+   |     `- Insert (RichTextNode (BlockNode (PandocBlock (Plain []))))
+   |        |
+   |        `- Insert (RichTextNode InlineNode)
+   |           |
+   |           `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "A figure caption", marks = []}))))
+   |
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph after.", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph after.", marks = []}))))

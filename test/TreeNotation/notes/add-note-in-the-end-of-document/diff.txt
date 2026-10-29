@@ -1,55 +1,57 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Copy (RichTextNode InlineNode)
-|     |
-|     +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A ", marks = []}))))
-|     |
-|     +- Copy (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
-|     |
-|     +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
-|     |
-|     +- Copy (RichTextNode (InlineContent (NoteRef (NoteId "2"))))
-|     |
-|     +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
-|     |
-|     +- Copy (RichTextNode (InlineContent (NoteRef (NoteId "3"))))
-|     |
-|     +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " para", marks = []}))))
-|     |
-|     +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
-|     |
-|     `- Insert (RichTextNode (InlineContent (NoteRef (NoteId "4"))))
-|
-+- Copy (RichTextNode (BlockNode (NoteContent (NoteId "1") [])))
-|  |
-|  `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|     |
-|     `- Copy (RichTextNode InlineNode)
-|        |
-|        `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "foo", marks = []}))))
-|
-+- Copy (RichTextNode (BlockNode (NoteContent (NoteId "2") [])))
-|  |
-|  `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|     |
-|     `- Copy (RichTextNode InlineNode)
-|        |
-|        `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "lorem ipsum", marks = []}))))
-|
-+- Copy (RichTextNode (BlockNode (NoteContent (NoteId "3") [])))
-|  |
-|  `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|     |
-|     `- Copy (RichTextNode InlineNode)
-|        |
-|        `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "bar", marks = []}))))
-|
-`- Insert (RichTextNode (BlockNode (NoteContent (NoteId "4") [])))
+`- Copy Body
    |
-   `- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
+   +- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  |
+   |  `- Copy (RichTextNode InlineNode)
+   |     |
+   |     +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A ", marks = []}))))
+   |     |
+   |     +- Copy (RichTextNode (InlineContent (NoteRef (NoteId "1"))))
+   |     |
+   |     +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
+   |     |
+   |     +- Copy (RichTextNode (InlineContent (NoteRef (NoteId "2"))))
+   |     |
+   |     +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
+   |     |
+   |     +- Copy (RichTextNode (InlineContent (NoteRef (NoteId "3"))))
+   |     |
+   |     +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " para", marks = []}))))
+   |     |
+   |     +- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = " ", marks = []}))))
+   |     |
+   |     `- Insert (RichTextNode (InlineContent (NoteRef (NoteId "4"))))
+   |
+   +- Copy (RichTextNode (BlockNode (NoteContent (NoteId "1") [])))
+   |  |
+   |  `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |     |
+   |     `- Copy (RichTextNode InlineNode)
+   |        |
+   |        `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "foo", marks = []}))))
+   |
+   +- Copy (RichTextNode (BlockNode (NoteContent (NoteId "2") [])))
+   |  |
+   |  `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |     |
+   |     `- Copy (RichTextNode InlineNode)
+   |        |
+   |        `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "lorem ipsum", marks = []}))))
+   |
+   +- Copy (RichTextNode (BlockNode (NoteContent (NoteId "3") [])))
+   |  |
+   |  `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |     |
+   |     `- Copy (RichTextNode InlineNode)
+   |        |
+   |        `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "bar", marks = []}))))
+   |
+   `- Insert (RichTextNode (BlockNode (NoteContent (NoteId "4") [])))
       |
-      `- Insert (RichTextNode InlineNode)
+      `- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
          |
-         `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "footnote text", marks = []}))))
+         `- Insert (RichTextNode InlineNode)
+            |
+            `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "footnote text", marks = []}))))

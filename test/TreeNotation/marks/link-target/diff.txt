@@ -1,9 +1,11 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "see ", marks = []}))))
-      |
-      `- UpdateMarks (MarkDiff [LinkMark (Link ("",[],[]) ("https://a.example",""))] [LinkMark (Link ("",[],[]) ("https://b.example",""))]) (RichTextNode (InlineContent (InlineText (TextSpan {value = "docs", marks = [LinkMark (Link ("",[],[]) ("https://b.example",""))]}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "see ", marks = []}))))
+         |
+         `- UpdateMarks (MarkDiff [LinkMark (Link ("",[],[]) ("https://a.example",""))] [LinkMark (Link ("",[],[]) ("https://b.example",""))]) (RichTextNode (InlineContent (InlineText (TextSpan {value = "docs", marks = [LinkMark (Link ("",[],[]) ("https://b.example",""))]}))))

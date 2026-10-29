@@ -1,15 +1,17 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Insert (RichTextNode InlineNode)
-|     |
-|     `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "First sentence.", marks = []}))))
-|
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   +- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  |
+   |  `- Insert (RichTextNode InlineNode)
+   |     |
+   |     `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "First sentence.", marks = []}))))
+   |
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "First sentence. ", marks = []}))))
-      |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second sentence.", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "First sentence. ", marks = []}))))
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Second sentence.", marks = []}))))

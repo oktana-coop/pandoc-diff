@@ -1,9 +1,11 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "We decided to abstract away the version control system", marks = []}))))
-      |
-      `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "We chose to hide the version layer entirely", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "We decided to abstract away the version control system", marks = []}))))
+         |
+         `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "We chose to hide the version layer entirely", marks = []}))))

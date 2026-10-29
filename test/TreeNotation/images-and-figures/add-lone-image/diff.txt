@@ -1,19 +1,21 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Copy (RichTextNode InlineNode)
-|     |
-|     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph before.", marks = []}))))
-|
-+- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
-|  |
-|  `- Insert (RichTextNode InlineNode)
-|     |
-|     `- Insert (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [] ("no-alt.png","")))))
-|
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   +- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  |
+   |  `- Copy (RichTextNode InlineNode)
+   |     |
+   |     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph before.", marks = []}))))
+   |
+   +- Insert (RichTextNode (BlockNode (PandocBlock (Para []))))
+   |  |
+   |  `- Insert (RichTextNode InlineNode)
+   |     |
+   |     `- Insert (RichTextNode (InlineContent (InlineImage (Image ("",[],[]) [] ("no-alt.png","")))))
+   |
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph after.", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A paragraph after.", marks = []}))))

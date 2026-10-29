@@ -1,11 +1,13 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "a ", marks = []}))))
-      |
-      +- UpdateMarks (MarkDiff [StrongMark] []) (RichTextNode (InlineContent (InlineText (TextSpan {value = "bold", marks = []}))))
-      |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " word", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "a ", marks = []}))))
+         |
+         +- UpdateMarks (MarkDiff [StrongMark] []) (RichTextNode (InlineContent (InlineText (TextSpan {value = "bold", marks = []}))))
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " word", marks = []}))))

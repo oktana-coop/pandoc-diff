@@ -141,6 +141,10 @@ annotatedTreeNodeUnfolder :: DiffOptions -> EditScript -> (RichTextDiffOp DocTre
 -- `getAnnotatedTree`), so it never swaps it either. Return its sub-forest edit scripts as the next seeds to be unfolded.
 annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.Root meta) subForestEditScripts))) =
   (Copy $ DocTree.LeafTextSpans.Root meta, map TreeEditScript subForestEditScripts)
+-- Body node
+-- Only Cpy: each root has one body, and the bodies' labels are equal, so tree-diff pairs them and diffs their children.
+annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode DocTree.GroupedInlines.Body subForestEditScripts))) =
+  (Copy DocTree.LeafTextSpans.Body, map TreeEditScript subForestEditScripts)
 -- Block nodes
 -- Leave Cpy nodes unchanged. Just return their sub-forest edit scripts as the next seeds to be unfolded.
 annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =

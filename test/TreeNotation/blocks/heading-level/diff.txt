@@ -1,13 +1,15 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-+- UpdateHeadingLevel (HeadingLevelDiff 2 3) (RichTextNode (BlockNode (PandocBlock (Header 3 ("overview",[],[]) []))))
-|  |
-|  `- Copy (RichTextNode InlineNode)
-|     |
-|     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Overview", marks = []}))))
-|
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   +- UpdateHeadingLevel (HeadingLevelDiff 2 3) (RichTextNode (BlockNode (PandocBlock (Header 3 ("overview",[],[]) []))))
+   |  |
+   |  `- Copy (RichTextNode InlineNode)
+   |     |
+   |     `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Overview", marks = []}))))
+   |
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Text.", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "Text.", marks = []}))))

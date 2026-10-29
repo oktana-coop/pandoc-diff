@@ -1,13 +1,15 @@
 Copy (Root (Meta {unMeta = fromList []}))
 |
-`- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+`- Copy Body
    |
-   `- Copy (RichTextNode InlineNode)
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
       |
-      +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "value ", marks = []}))))
-      |
-      +- Delete (RichTextNode (InlineContent (PandocInline (Math InlineMath "x^2"))))
-      |
-      +- Insert (RichTextNode (InlineContent (PandocInline (Math InlineMath "x^3"))))
-      |
-      `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " here", marks = []}))))
+      `- Copy (RichTextNode InlineNode)
+         |
+         +- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "value ", marks = []}))))
+         |
+         +- Delete (RichTextNode (InlineContent (PandocInline (Math InlineMath "x^2"))))
+         |
+         +- Insert (RichTextNode (InlineContent (PandocInline (Math InlineMath "x^3"))))
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = " here", marks = []}))))
