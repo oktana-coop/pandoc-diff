@@ -21,8 +21,8 @@ import DocTree.LeafTextSpans (DocNode (..), RichTextNode (..))
 import Patience (Item (..), diff)
 import RewriteDetection (isRewrite)
 import RichTextAnalysis (FormattedCharacter (..), FormattedTextToken (..), InlineAtom (..), InlineToken (..), NoteRefAtom (..), NoteRefToken (..), textSpanToFormattedText, tokenizeInlineSequence)
-import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), MetaDiff (..), RichTextDiffOp (..), getDiffOp, unpackDiffOpValue)
-import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc (..), nullAttr, nullMeta)
+import RichTextDiffOp (HeadingLevelDiff (..), MarkDiff (..), RichTextDiffOp (..), getDiffOp, unpackDiffOpValue)
+import Text.Pandoc.Definition as Pandoc (Block (Div, Header), Pandoc (..), nullAttr)
 
 instance (Eq a) => Eq (EditTree a) where
   (EditNode a1 edits1) == (EditNode a2 edits2) = a1 == a2 && edits1 == edits2
@@ -109,24 +109,21 @@ diff pandoc1 pandoc2 = toPandoc $ getAnnotatedTree defaultDiffOptions pandoc1 pa
 
 -- TODO: Remove when all the components of the diff function (annotateTreeWithDiffs, toPandoc) are implemented
 getAnnotatedTree :: DiffOptions -> Pandoc.Pandoc -> Pandoc.Pandoc -> Tree (RichTextDiffOp DocTree.LeafTextSpans.DocNode)
-getAnnotatedTree options pandoc1@(Pandoc.Pandoc meta1 _) pandoc2@(Pandoc.Pandoc meta2 _) = Node rootNodeWithDiffOp annotatedBody
+getAnnotatedTree options pandoc1 pandoc2 = unfoldAnnotatedTreeFromEditScript options editScript
   where
-    -- tree-diff diffs the children of two nodes only when their labels are equal. Otherwise, it swaps the two whole
-    -- trees. The root's label holds the metadata, so a metadata change would swap the whole documents, body included.
-    -- To work around it, we diff the documents without their metadata and set the root's diff op from the metadata
-    -- separately (`rootNodeWithDiffOp`).
-    tree1 = DocTree.GroupedInlines.toTree (withoutMeta pandoc1)
-    tree2 = DocTree.GroupedInlines.toTree (withoutMeta pandoc2)
-    editScript = TreeEditScript $ treeDiff tree1 tree2
-    -- The diffed tree's children, without its root: the root has empty metadata, and `rootNodeWithDiffOp` takes its place.
-    annotatedBody = subForest $ unfoldAnnotatedTreeFromEditScript options editScript
-    rootNodeWithDiffOp =
-      if meta1 == meta2
-        then Copy $ DocTree.LeafTextSpans.Root meta2
-        else UpdateMeta (MetaDiff meta1 meta2) (DocTree.LeafTextSpans.Root meta2)
+    tree1 = DocTree.GroupedInlines.toTree pandoc1
+    tree2 = DocTree.GroupedInlines.toTree pandoc2
+    editScript = TreeEditScript $ splitSwappedMetaNodes $ treeDiff tree1 tree2
 
-withoutMeta :: Pandoc.Pandoc -> Pandoc.Pandoc
-withoutMeta (Pandoc.Pandoc _ blocks) = Pandoc.Pandoc Pandoc.nullMeta blocks
+-- tree-diff swaps two metadata nodes whose labels differ, e.g. two keys. Unlike for swapped blocks, the deletion and the
+-- insertion can't be wrapped in a `Div`: the metadata and a map hold only keys, and a key holds one value. So the nodes
+-- themselves are deleted and inserted.
+splitSwappedMetaNodes :: Edit (EditTree DocTree.GroupedInlines.DocNode) -> Edit (EditTree DocTree.GroupedInlines.DocNode)
+splitSwappedMetaNodes (Cpy (EditNode label childEdits)) = Cpy (EditNode label (concatMap splitIfSwappedMetaNodes childEdits))
+  where
+    splitIfSwappedMetaNodes (Swp editTree1@(EditNode (DocTree.GroupedInlines.MetaNode _) _) editTree2@(EditNode (DocTree.GroupedInlines.MetaNode _) _)) = [Del editTree1, Ins editTree2]
+    splitIfSwappedMetaNodes childEdit = [splitSwappedMetaNodes childEdit]
+splitSwappedMetaNodes edit = edit
 
 -- Produce the annotated tree from the edit script that contains the diffs
 unfoldAnnotatedTreeFromEditScript :: DiffOptions -> EditScript -> Tree (RichTextDiffOp DocTree.LeafTextSpans.DocNode)
@@ -137,14 +134,28 @@ toPandoc = undefined
 
 annotatedTreeNodeUnfolder :: DiffOptions -> EditScript -> (RichTextDiffOp DocTree.LeafTextSpans.DocNode, [EditScript])
 -- Root node
--- Only Cpy: tree-diff never inserts or deletes the root, and the bodies are diffed without the metadata (see
--- `getAnnotatedTree`), so it never swaps it either. Return its sub-forest edit scripts as the next seeds to be unfolded.
-annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.Root meta) subForestEditScripts))) =
-  (Copy $ DocTree.LeafTextSpans.Root meta, map TreeEditScript subForestEditScripts)
+-- Only Cpy: tree-diff never inserts or deletes the root, and the roots' labels are equal, so it never swaps them either.
+-- Return its sub-forest edit scripts as the next seeds to be unfolded.
+annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode DocTree.GroupedInlines.Root subForestEditScripts))) =
+  (Copy DocTree.LeafTextSpans.Root, map TreeEditScript subForestEditScripts)
+-- Metadata node
+-- Only Cpy: each root has one metadata node, before the body, and the metadata nodes' labels are equal, so tree-diff
+-- pairs them and diffs their children.
+annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode DocTree.GroupedInlines.Metadata subForestEditScripts))) =
+  (Copy DocTree.LeafTextSpans.Metadata, map TreeEditScript subForestEditScripts)
 -- Body node
 -- Only Cpy: each root has one body, and the bodies' labels are equal, so tree-diff pairs them and diffs their children.
 annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode DocTree.GroupedInlines.Body subForestEditScripts))) =
   (Copy DocTree.LeafTextSpans.Body, map TreeEditScript subForestEditScripts)
+-- Metadata keys and values
+-- No Swp: swaps are handled before the tree is unfolded.
+-- TODO: Return a `Left` for a Swp once this function returns an `Either`.
+annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.MetaNode metaNode) subForestEditScripts))) =
+  (Copy $ DocTree.LeafTextSpans.MetaNode metaNode, map TreeEditScript subForestEditScripts)
+annotatedTreeNodeUnfolder _ (TreeEditScript (Ins (EditNode (DocTree.GroupedInlines.MetaNode metaNode) subForestEditScripts))) =
+  (Insert $ DocTree.LeafTextSpans.MetaNode metaNode, map (TreeEditScript . replaceWithInsOp) subForestEditScripts)
+annotatedTreeNodeUnfolder _ (TreeEditScript (Del (EditNode (DocTree.GroupedInlines.MetaNode metaNode) subForestEditScripts))) =
+  (Delete $ DocTree.LeafTextSpans.MetaNode metaNode, map (TreeEditScript . replaceWithDelOp) subForestEditScripts)
 -- Block nodes
 -- Leave Cpy nodes unchanged. Just return their sub-forest edit scripts as the next seeds to be unfolded.
 annotatedTreeNodeUnfolder _ (TreeEditScript (Cpy (EditNode (DocTree.GroupedInlines.RichTextNode (DocTree.GroupedInlines.BlockNode blockNode)) subForestEditScripts))) =

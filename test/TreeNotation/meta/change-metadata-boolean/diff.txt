@@ -1,0 +1,25 @@
+Copy Root
+|
++- Copy Metadata
+|  |
+|  +- Copy (MetaNode (MetaKey "draft"))
+|  |  |
+|  |  +- Delete (MetaNode (PandocMetaValue (MetaBool True)))
+|  |  |
+|  |  `- Insert (MetaNode (PandocMetaValue (MetaBool False)))
+|  |
+|  `- Copy (MetaNode (MetaKey "title"))
+|     |
+|     `- Copy (MetaNode (PandocMetaValue (MetaInlines [])))
+|        |
+|        `- Copy (RichTextNode InlineNode)
+|           |
+|           `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A title", marks = []}))))
+|
+`- Copy Body
+   |
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+      |
+      `- Copy (RichTextNode InlineNode)
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "The body.", marks = []}))))

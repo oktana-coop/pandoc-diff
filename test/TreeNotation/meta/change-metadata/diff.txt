@@ -1,4 +1,24 @@
-UpdateMeta (MetaDiff (Meta {unMeta = fromList [("status",MetaInlines [Str "draft"]),("title",MetaInlines [Str "A",Space,Str "title"])]}) (Meta {unMeta = fromList [("status",MetaInlines [Str "published"]),("title",MetaInlines [Str "A",Space,Str "title"])]})) (Root (Meta {unMeta = fromList [("status",MetaInlines [Str "published"]),("title",MetaInlines [Str "A",Space,Str "title"])]}))
+Copy Root
+|
++- Copy Metadata
+|  |
+|  +- Copy (MetaNode (MetaKey "status"))
+|  |  |
+|  |  `- Copy (MetaNode (PandocMetaValue (MetaInlines [])))
+|  |     |
+|  |     `- Copy (RichTextNode InlineNode)
+|  |        |
+|  |        +- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "draft", marks = []}))))
+|  |        |
+|  |        `- Insert (RichTextNode (InlineContent (InlineText (TextSpan {value = "published", marks = []}))))
+|  |
+|  `- Copy (MetaNode (MetaKey "title"))
+|     |
+|     `- Copy (MetaNode (PandocMetaValue (MetaInlines [])))
+|        |
+|        `- Copy (RichTextNode InlineNode)
+|           |
+|           `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A title", marks = []}))))
 |
 `- Copy Body
    |

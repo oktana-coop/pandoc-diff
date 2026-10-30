@@ -31,7 +31,6 @@ textEffect :: RichTextDiffOp a -> TextEffect
 textEffect (Insert _) = Changed
 textEffect (Delete _) = Changed
 textEffect (Copy _) = Unchanged
-textEffect (UpdateMeta _ _) = Unchanged
 textEffect (UpdateMarks _ _) = Unchanged
 textEffect (UpdateHeadingLevel _ _) = Unchanged
 

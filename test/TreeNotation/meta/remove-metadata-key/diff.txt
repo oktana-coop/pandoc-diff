@@ -1,0 +1,35 @@
+Copy Root
+|
++- Copy Metadata
+|  |
+|  +- Delete (MetaNode (MetaKey "tags"))
+|  |  |
+|  |  `- Delete (MetaNode (PandocMetaValue (MetaList [])))
+|  |     |
+|  |     +- Delete (MetaNode (PandocMetaValue (MetaInlines [])))
+|  |     |  |
+|  |     |  `- Delete (RichTextNode InlineNode)
+|  |     |     |
+|  |     |     `- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "draft", marks = []}))))
+|  |     |
+|  |     `- Delete (MetaNode (PandocMetaValue (MetaInlines [])))
+|  |        |
+|  |        `- Delete (RichTextNode InlineNode)
+|  |           |
+|  |           `- Delete (RichTextNode (InlineContent (InlineText (TextSpan {value = "notes", marks = []}))))
+|  |
+|  `- Copy (MetaNode (MetaKey "title"))
+|     |
+|     `- Copy (MetaNode (PandocMetaValue (MetaInlines [])))
+|        |
+|        `- Copy (RichTextNode InlineNode)
+|           |
+|           `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "A title", marks = []}))))
+|
+`- Copy Body
+   |
+   `- Copy (RichTextNode (BlockNode (PandocBlock (Para []))))
+      |
+      `- Copy (RichTextNode InlineNode)
+         |
+         `- Copy (RichTextNode (InlineContent (InlineText (TextSpan {value = "The body.", marks = []}))))

@@ -1,4 +1,6 @@
-Copy (Root (Meta {unMeta = fromList []}))
+Copy Root
+|
++- Copy Metadata
 |
 `- Copy Body
    |

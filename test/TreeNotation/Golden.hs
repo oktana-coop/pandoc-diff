@@ -104,7 +104,12 @@ tests =
           "meta"
           [ goldenCase $ "meta" </> "change-metadata",
             goldenCase $ "meta" </> "change-body",
-            goldenCase $ "meta" </> "change-metadata-and-body"
+            goldenCase $ "meta" </> "change-metadata-and-body",
+            goldenCase $ "meta" </> "add-metadata-key",
+            goldenCase $ "meta" </> "remove-metadata-key",
+            goldenCase $ "meta" </> "rename-metadata-key",
+            goldenCase $ "meta" </> "change-metadata-boolean",
+            goldenCase $ "meta" </> "change-metadata-value-kind"
           ],
         -- Cross-cutting
         testGroup
